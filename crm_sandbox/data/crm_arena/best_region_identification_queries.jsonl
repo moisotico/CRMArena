@@ -1,0 +1,130 @@
+{"metadata": {"today": "2024-09-22", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 5 months?", "answer": ["OR"]}
+{"metadata": {"today": "2021-07-16", "task": "best_region_identification"}, "query": "During the summer of 2021, which states had the quickest case closures?", "answer": ["WI"]}
+{"metadata": {"today": "2021-08-23", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Q4 of 2021?", "answer": ["NC"]}
+{"metadata": {"today": "2021-04-28", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past six months?", "answer": ["NJ"]}
+{"metadata": {"today": "2023-07-31", "task": "best_region_identification"}, "query": "Which states resolved cases most quickly in the last two quarters?", "answer": ["KY"]}
+{"metadata": {"today": "2021-04-28", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in the fall of 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2025-03-14", "task": "best_region_identification"}, "query": "In Q4 of 2023, which states have the shortest case closure times?", "answer": ["FL"]}
+{"metadata": {"today": "2025-09-05", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in May 2020?", "answer": ["MA"]}
+{"metadata": {"today": "2021-10-24", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 6 months?", "answer": ["WI"]}
+{"metadata": {"today": "2025-08-07", "task": "best_region_identification"}, "query": "Which states closed cases the fastest in May 2021?", "answer": ["GA"]}
+{"metadata": {"today": "2024-11-09", "task": "best_region_identification"}, "query": "Which states have the quickest case closure rate over the past 6 months?", "answer": ["OR"]}
+{"metadata": {"today": "2022-01-13", "task": "best_region_identification"}, "query": "Which states have closed cases the quickest in the past 4 months?", "answer": ["NC"]}
+{"metadata": {"today": "2024-03-01", "task": "best_region_identification"}, "query": "Which states achieve the quickest case closures in the past two weeks?", "answer": ["MA"]}
+{"metadata": {"today": "2023-02-08", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in the first quarter of 2023?", "answer": ["KY"]}
+{"metadata": {"today": "2021-12-20", "task": "best_region_identification"}, "query": "In which states have we closed cases the quickest over the past 5 weeks?", "answer": ["NC"]}
+{"metadata": {"today": "2023-03-23", "task": "best_region_identification"}, "query": "Which states have the quickest case resolution times in the past 5 months?", "answer": ["KY"]}
+{"metadata": {"today": "2020-04-28", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Fall 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2021-03-20", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past five quarters?", "answer": ["NJ"]}
+{"metadata": {"today": "2021-10-03", "task": "best_region_identification"}, "query": "Which states have the quickest case closure time in the past two months?", "answer": ["OR"]}
+{"metadata": {"today": "2025-05-14", "task": "best_region_identification"}, "query": "Which states did we close cases the fastest in Winter 2022?", "answer": ["KY"]}
+{"metadata": {"today": "2024-10-02", "task": "best_region_identification"}, "query": "During the winter of 2022, in which states did we resolve cases the quickest?", "answer": ["KY"]}
+{"metadata": {"today": "2021-04-10", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the last 6 quarters?", "answer": ["NJ"]}
+{"metadata": {"today": "2023-05-05", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past year?", "answer": ["NC"]}
+{"metadata": {"today": "2024-06-13", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times over the past three months?", "answer": ["CO"]}
+{"metadata": {"today": "2022-12-29", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times over the past year?", "answer": ["SC"]}
+{"metadata": {"today": "2022-10-25", "task": "best_region_identification"}, "query": "Which states closed cases the fastest in Fall 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2023-02-04", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in November 2022?", "answer": ["OR"]}
+{"metadata": {"today": "2023-04-25", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 3 weeks?", "answer": ["AZ"]}
+{"metadata": {"today": "2023-02-09", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times over the past 5 quarters?", "answer": ["MI"]}
+{"metadata": {"today": "2025-04-01", "task": "best_region_identification"}, "query": "Which states had the quickest case closure times in the past 4 quarters?", "answer": ["OR"]}
+{"metadata": {"today": "2021-05-18", "task": "best_region_identification"}, "query": "Which states have the shortest case closure times in the past 6 months?", "answer": ["NJ"]}
+{"metadata": {"today": "2022-08-28", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in Spring 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2022-03-25", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past four quarters?", "answer": ["WI"]}
+{"metadata": {"today": "2025-10-09", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in January 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2022-05-08", "task": "best_region_identification"}, "query": "In Q2 of 2021, in which states did we resolve cases the quickest?", "answer": ["WI"]}
+{"metadata": {"today": "2021-03-30", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 4 weeks?", "answer": ["MA"]}
+{"metadata": {"today": "2021-03-28", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Fall 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2025-09-02", "task": "best_region_identification"}, "query": "Which states have the fastest case closure rates in the past 6 quarters?", "answer": ["CO"]}
+{"metadata": {"today": "2020-10-12", "task": "best_region_identification"}, "query": "Which states had the fastest case resolutions in Winter 2020?", "answer": ["ID"]}
+{"metadata": {"today": "2022-05-03", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in March 2020?", "answer": ["IL"]}
+{"metadata": {"today": "2022-12-09", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 5 months?", "answer": ["FL"]}
+{"metadata": {"today": "2022-05-30", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in November 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2021-08-13", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in Spring 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2023-07-10", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in Fall 2023?", "answer": ["GA"]}
+{"metadata": {"today": "2022-05-29", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in December 2021?", "answer": ["TN"]}
+{"metadata": {"today": "2023-02-08", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in September 2022?", "answer": ["GA"]}
+{"metadata": {"today": "2024-06-29", "task": "best_region_identification"}, "query": "Which states had the fastest case closure times in Fall 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2024-08-31", "task": "best_region_identification"}, "query": "In Winter 2020, which states resolve cases the quickest?", "answer": ["ID"]}
+{"metadata": {"today": "2020-03-28", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past five quarters?", "answer": ["ID"]}
+{"metadata": {"today": "2025-05-25", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Q3 2022?", "answer": ["MA"]}
+{"metadata": {"today": "2023-02-07", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 5 weeks?", "answer": ["PA"]}
+{"metadata": {"today": "2023-11-29", "task": "best_region_identification"}, "query": "In May 2020, which states have the fastest case closures?", "answer": ["MA"]}
+{"metadata": {"today": "2020-09-21", "task": "best_region_identification"}, "query": "Which states have the quickest case closures over the past three months?", "answer": ["GA"]}
+{"metadata": {"today": "2023-02-19", "task": "best_region_identification"}, "query": "During winter 2020, in which states did we close cases the quickest?", "answer": ["ID"]}
+{"metadata": {"today": "2025-02-19", "task": "best_region_identification"}, "query": "Which states will have the fastest case closures in Fall 2023?", "answer": ["GA"]}
+{"metadata": {"today": "2023-05-30", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Spring 2022?", "answer": ["OH"]}
+{"metadata": {"today": "2024-05-02", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past three quarters?", "answer": ["OR"]}
+{"metadata": {"today": "2020-08-18", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 5 quarters?", "answer": ["GA"]}
+{"metadata": {"today": "2020-07-28", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 6 weeks?", "answer": ["CA"]}
+{"metadata": {"today": "2021-02-25", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in January 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2021-06-17", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 3 months?", "answer": ["MA"]}
+{"metadata": {"today": "2021-06-03", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in the first quarter of 2020?", "answer": ["ID"]}
+{"metadata": {"today": "2021-04-06", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past three quarters?", "answer": ["NJ"]}
+{"metadata": {"today": "2024-05-29", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 6 weeks?", "answer": ["OR"]}
+{"metadata": {"today": "2020-09-25", "task": "best_region_identification"}, "query": "Which states have the quickest case resolution times over the past 5 weeks?", "answer": ["GA"]}
+{"metadata": {"today": "2020-05-20", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 3 months?", "answer": ["IL"]}
+{"metadata": {"today": "2023-08-01", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Q1 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2024-06-25", "task": "best_region_identification"}, "query": "Which states resolve cases the quickest in the summer of 2023?", "answer": ["FL"]}
+{"metadata": {"today": "2021-11-18", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past four months?", "answer": ["OR"]}
+{"metadata": {"today": "2022-01-01", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past two months?", "answer": ["NC"]}
+{"metadata": {"today": "2021-08-28", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Q3 of 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2022-08-03", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past two quarters?", "answer": ["TN"]}
+{"metadata": {"today": "2023-04-15", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 4 weeks?", "answer": ["NV"]}
+{"metadata": {"today": "2023-10-10", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past two months?", "answer": ["CA"]}
+{"metadata": {"today": "2020-10-10", "task": "best_region_identification"}, "query": "Which states have the fastest case closure times in the past two quarters?", "answer": ["GA"]}
+{"metadata": {"today": "2021-10-25", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in Winter 2021?", "answer": ["KY"]}
+{"metadata": {"today": "2022-10-18", "task": "best_region_identification"}, "query": "In the fourth quarter of 2020, which states resolved cases quickest?", "answer": ["MN"]}
+{"metadata": {"today": "2021-09-27", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in the past two quarters?", "answer": ["WI"]}
+{"metadata": {"today": "2022-10-18", "task": "best_region_identification"}, "query": "In which states did we close cases the quickest in August 2021?", "answer": ["OR"]}
+{"metadata": {"today": "2025-09-24", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Q1 2023?", "answer": ["KY"]}
+{"metadata": {"today": "2023-11-29", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past two weeks?", "answer": ["GA"]}
+{"metadata": {"today": "2020-10-09", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Fall 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2024-09-18", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past two quarters?", "answer": ["TX"]}
+{"metadata": {"today": "2021-04-11", "task": "best_region_identification"}, "query": "What states have the quickest case closures in the past year?", "answer": ["NJ"]}
+{"metadata": {"today": "2021-09-06", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in November 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2024-08-02", "task": "best_region_identification"}, "query": "Which states closed cases the quickest in Spring 2020?", "answer": ["IL"]}
+{"metadata": {"today": "2021-09-27", "task": "best_region_identification"}, "query": "Which states had the quickest case resolutions in April 2020?", "answer": ["CA"]}
+{"metadata": {"today": "2024-07-04", "task": "best_region_identification"}, "query": "Which states have the quickest case resolution times over the past 6 quarters?", "answer": ["KY"]}
+{"metadata": {"today": "2024-02-20", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in Fall 2022?", "answer": ["OR"]}
+{"metadata": {"today": "2022-08-11", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in the first quarter of 2022?", "answer": ["OH"]}
+{"metadata": {"today": "2024-04-04", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Q3 of 2022?", "answer": ["MA"]}
+{"metadata": {"today": "2024-10-26", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 4 quarters?", "answer": ["CO"]}
+{"metadata": {"today": "2024-04-14", "task": "best_region_identification"}, "query": "Which states have the fastest case closures in Spring 2024?", "answer": ["CO"]}
+{"metadata": {"today": "2020-11-06", "task": "best_region_identification"}, "query": "Which states have the fastest case closures in the past two months?", "answer": ["TN"]}
+{"metadata": {"today": "2025-07-20", "task": "best_region_identification"}, "query": "Which states did we close cases the quickest in February 2023?", "answer": ["FL"]}
+{"metadata": {"today": "2021-04-11", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in September 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2021-09-17", "task": "best_region_identification"}, "query": "Which states have the quickest case closures over the past four weeks?", "answer": ["OR"]}
+{"metadata": {"today": "2025-05-15", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Q1 of 2022?", "answer": ["OH"]}
+{"metadata": {"today": "2020-11-29", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in December 2020?", "answer": ["ID"]}
+{"metadata": {"today": "2024-05-07", "task": "best_region_identification"}, "query": "Which states have the quickest case resolutions over the past 3 months?", "answer": ["CO"]}
+{"metadata": {"today": "2021-02-22", "task": "best_region_identification"}, "query": "Which states have the quickest case closures over the past 4 weeks?", "answer": ["OR"]}
+{"metadata": {"today": "2020-04-25", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Spring 2020?", "answer": ["IL"]}
+{"metadata": {"today": "2023-02-26", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the second quarter of 2023?", "answer": ["FL"]}
+{"metadata": {"today": "2025-11-28", "task": "best_region_identification"}, "query": "Which states resolved cases the quickest in Q4 of 2021?", "answer": ["NC"]}
+{"metadata": {"today": "2021-01-14", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in June 2020?", "answer": ["NY"]}
+{"metadata": {"today": "2020-02-13", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in Q4 of 2020?", "answer": ["MN"]}
+{"metadata": {"today": "2024-12-03", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Fall 2021?", "answer": ["MA"]}
+{"metadata": {"today": "2025-12-24", "task": "best_region_identification"}, "query": "In February 2020, which states had the quickest case closures?", "answer": ["CA"]}
+{"metadata": {"today": "2021-06-11", "task": "best_region_identification"}, "query": "Which states closed cases the quickest in May 2021?", "answer": ["GA"]}
+{"metadata": {"today": "2021-03-11", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 5 months?", "answer": ["MN"]}
+{"metadata": {"today": "2020-12-23", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past two quarters?", "answer": ["NJ"]}
+{"metadata": {"today": "2024-05-30", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 5 months?", "answer": ["CO"]}
+{"metadata": {"today": "2022-03-28", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times over the past three quarters?", "answer": ["AL"]}
+{"metadata": {"today": "2020-01-04", "task": "best_region_identification"}, "query": "In November 2020, which states close cases the quickest?", "answer": ["GA"]}
+{"metadata": {"today": "2021-02-14", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 6 months?", "answer": ["MN"]}
+{"metadata": {"today": "2021-11-22", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in June 2020?", "answer": ["NY"]}
+{"metadata": {"today": "2021-09-25", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 6 weeks?", "answer": ["OR"]}
+{"metadata": {"today": "2022-10-22", "task": "best_region_identification"}, "query": "Which states have the quickest case resolution times over the past 2 months?", "answer": ["CO"]}
+{"metadata": {"today": "2020-04-27", "task": "best_region_identification"}, "query": "Which states had the fastest case closures in Fall 2020?", "answer": ["GA"]}
+{"metadata": {"today": "2022-10-10", "task": "best_region_identification"}, "query": "Which states closed cases the fastest in April 2022?", "answer": ["TX"]}
+{"metadata": {"today": "2023-04-13", "task": "best_region_identification"}, "query": "Which states have the quickest case closures over the past 6 quarters?", "answer": ["MI"]}
+{"metadata": {"today": "2023-03-05", "task": "best_region_identification"}, "query": "Which states had the quickest case closures in June 2020?", "answer": ["NY"]}
+{"metadata": {"today": "2020-09-10", "task": "best_region_identification"}, "query": "Which states have the quickest case resolution times over the past three weeks?", "answer": ["GA"]}
+{"metadata": {"today": "2021-07-16", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 4 weeks?", "answer": ["OH"]}
+{"metadata": {"today": "2020-02-14", "task": "best_region_identification"}, "query": "Which states have the quickest case closures in the past 6 months?", "answer": ["VA"]}
+{"metadata": {"today": "2023-11-26", "task": "best_region_identification"}, "query": "Which states have the quickest case closures over the last 5 quarters?", "answer": ["NC"]}
+{"metadata": {"today": "2020-01-26", "task": "best_region_identification"}, "query": "Which states have the quickest case closure times in the past 4 weeks?", "answer": ["CA"]}
+{"metadata": {"today": "2022-02-13", "task": "best_region_identification"}, "query": "In the spring of 2020, which states had the quickest case closures?", "answer": ["IL"]}
+{"metadata": {"today": "2023-11-13", "task": "best_region_identification"}, "query": "Which states closed cases the fastest in Q2 2020?", "answer": ["NY"]}
+{"metadata": {"today": "2022-04-13", "task": "best_region_identification"}, "query": "Which states have the quickest case resolutions in the past five months?", "answer": ["OH"]}

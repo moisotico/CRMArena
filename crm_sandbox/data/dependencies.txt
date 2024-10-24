@@ -1,0 +1,29 @@
+Dependencies for Contact:
+  - Field: AccountId, Referenced Object: Account
+  - Field: OwnerId, Referenced Object: User
+Dependencies for Case:
+  - Field: ContactId, Referenced Object: Contact
+  - Field: AccountId, Referenced Object: Account
+  - Field: OwnerId, Referenced Object: User
+Dependencies for ProductCategoryProduct:
+  - Field: ProductCategoryId, Referenced Object: ProductCategory
+  - Field: ProductId, Referenced Object: Product2
+Dependencies for PricebookEntry:
+  - Field: Pricebook2Id, Referenced Object: Pricebook2
+  - Field: Product2Id, Referenced Object: Product2
+Dependencies for Order:
+  - Field: AccountId, Referenced Object: Account
+  - Field: Pricebook2Id, Referenced Object: Pricebook2
+Dependencies for OrderItem:
+  - Field: Product2Id, Referenced Object: Product2
+  - Field: OrderId, Referenced Object: Order
+  - Field: PricebookEntryId, Referenced Object: PricebookEntry
+Dependencies for EmailMessage:
+  - Field: ParentId, Referenced Object: Case
+Dependencies for LiveChatTranscript:
+  - Field: OwnerId, Referenced Object: User
+  - Field: ContactId, Referenced Object: Contact
+  - Field: CaseId, Referenced Object: Case
+  - Field: AccountId, Referenced Object: Account
+Dependencies for CaseHistory__c:
+  - Field: CaseId__c, Referenced Object: Case
