@@ -16,11 +16,10 @@
 
 <!-- [![arXiv](https://img.shields.io/badge/arXiv-2312.10160-b31b1b.svg?style=for-the-badge)](https://arxiv.org/abs/2312.10160) -->
 
-<a href='https://arxiv.org/abs/2312.10160'><img src='https://img.shields.io/badge/arXiv-2312.10160-b31b1b.svg'></a> &nbsp;&nbsp;&nbsp;
-<a href='https://github.com/SalesforceAIResearch/CRMArena/blob/main/LICENSE.txt'><img src='https://img.shields.io/badge/License-CC_NC_4.0-blue'></a> &nbsp;&nbsp;&nbsp;
-[![CRMArena](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CRMArena_Data-blue)](https://huggingface.co/datasets/Salesforce/CRMArena) &nbsp;&nbsp;&nbsp;&nbsp;
-[![CRMArenaBenchmark](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CRMArena_Leaderboard-blue)](https://huggingface.co/spaces/Salesforce/CRMArena-Leaderboard) &nbsp;&nbsp;&nbsp;&nbsp;
-
+<a href='https://arxiv.org/abs/2411.02305'><img src='https://img.shields.io/badge/arXiv-2411.02305-b31b1b.svg'></a>
+[![CRMArena](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CRMArena_Data-blue)](https://huggingface.co/datasets/Salesforce/CRMArena) 
+[![CRMArenaBenchmark](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-CRMArena_Leaderboard-blue)](https://huggingface.co/spaces/Salesforce/CRMArena-Leaderboard) 
+<a href='https://github.com/SalesforceAIResearch/CRMArena/blob/main/LICENSE.txt'><img src='https://img.shields.io/badge/License-CC_NC_4.0-blue'></a>
 ## Abstract
 
 Customer Relationship Management (CRM) systems are vital for modern enterprises, providing a foundation for managing customer interactions and data. Integrating AI agents into CRM systems can automate routine processes and enhance personalized service. However, deploying and evaluating these agents is challenging due to the lack of realistic benchmarks that reflect the complexity of real-world CRM tasks. To address this issue, we introduce CRMArena, a novel benchmark designed to evaluate AI agents on realistic tasks grounded in professional work environments. Following guidance from CRM experts and industry best practices, we designed CRMArena with nine customer service tasks distributed across three personas: service agent, analyst, and manager. The benchmark includes 16 commonly used industrial objects (e.g., account, order, knowledge article, case) with high interconnectivity, along with latent variables (e.g., complaint habits, policy violations) to simulate realistic data distributions. Experimental results reveal that state-of-the-art LLM agents succeed in less than 40% of the tasks with ReAct prompting, and less than 55% even with function-calling abilities. Our findings highlight the need for enhanced agent capabilities in function-calling and rule-following to be deployed in real-world work environments. CRMArena is an open challenge to the community: systems that can reliably complete tasks showcase direct business value in a popular work environment.
