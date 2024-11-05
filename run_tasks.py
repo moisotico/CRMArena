@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import json, os
 from crm_sandbox.agents import ChatAgent, ToolCallAgent
 from crm_sandbox.agents.utils import BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP
-from crm_sandbox.data.assets import TASKS, TASKS_NATURAL, SCHEMA
+from crm_sandbox.data.assets import TASKS_NATURAL, SCHEMA
 from crm_sandbox.env.env import ChatEnv, ToolEnv
 from crm_sandbox.env import TOOLS, TOOLS_FULL
 import traceback
