@@ -1,12 +1,11 @@
-import json, os
-FOLDER_PATH = os.path.dirname(__file__)
+from datasets import load_dataset
 
+crmarena = load_dataset("Salesforce/CRMArena", "CRMArena")
     
-with open(os.path.join(FOLDER_PATH, "tasks_natural.json"), "r") as f:
-    TASKS_NATURAL = json.load(f)
+TASKS_NATURAL = [data for data in crmarena["test"]]
     
-with open(os.path.join(FOLDER_PATH, "schema_with_dependencies.json"), "r") as f:
-    SCHEMA = json.load(f)
-    
+schema = load_dataset("Salesforce/CRMArena", "schema")
+
+SCHEMA = [data for data in schema["test"]]    
     
 TOOLS = None

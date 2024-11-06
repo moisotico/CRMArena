@@ -1,7 +1,7 @@
 # CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments
 
 <div align="center">
-<a href="https://pluslabnlp.github.io/"><img src="crmarena_logo.png" height="120" ></a>
+<a href="https://pluslabnlp.github.io/"><img src="figures/crmarena_logo.png" height="120" ></a>
 </div>
 
 <div align="center">
@@ -41,16 +41,58 @@ SALESFORCE_PASSWORD=crmarenatest
 SALESFORCE_SECURITY_TOKEN=ugvBSBv0ArI7dayfqUY0wMGu
 ```
 
-Store your Salesforce org / OpenAI / AWS Bedrock / TogetherAI API keys in `.env`
+### Accessing the Org via GUI
+
+To access the GUI of our Org, follow the steps below:
+
+1. Head to https://login.salesforce.com/.
+2. Type in the user name and password using the above credentials.
+<div align="center">
+<a href="https://pluslabnlp.github.io/"><img src="figures/GUI_login.png" height="400" ></a>
+</div>
+
+3. You can now see the GUI of our Org.
+
+
+
+
+### Accessing the Org via API
+
+First, store your Salesforce org / OpenAI / AWS Bedrock / TogetherAI API keys in `.env`
 ```bash
 OPENAI_API_KEY=...
 ...
 ```
 
-Configure your setup and launch experiments
+Then, you can use Simple Salesforce to connect to our Org.
+
+```python
+from simple_salesforce import Salesforce
+import os
+
+sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME"), password=os.getenv("SALESFORCE_PASSWORD"), security_token=os.getenv("SALESFORCE_SECURITY_TOKEN"))
+
+sf.query.query_all(...)
+```
+
+
+## Running experiments
+
+To run experiments, you need to download CRMArena queries and schema from Huggingface:
+
+```python
+from datasets import load_dataset
+
+load_dataset("Salesforce/CRMArena", "CRMArena")
+schema = load_dataset("Salesforce/CRMArena", "schema")
+```
+Please refer to `crm_sandbox/data/assets.py` for more details.
+
+Configure your setup in `run_tasks.sh` and launch experiments
 ```bash
 bash run_tasks.sh
 ```
+
 
 ## Citation
 
