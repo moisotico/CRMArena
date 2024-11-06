@@ -83,12 +83,12 @@ To run experiments, you need to download CRMArena queries and schema from Huggin
 ```python
 from datasets import load_dataset
 
-load_dataset("Salesforce/CRMArena", "CRMArena")
+queries = load_dataset("Salesforce/CRMArena", "CRMArena")
 schema = load_dataset("Salesforce/CRMArena", "schema")
 ```
 Please refer to `crm_sandbox/data/assets.py` for more details.
 
-Configure your setup in `run_tasks.sh` and launch experiments
+Alternatively, we have prepared the evaluation scripts. Configure your setup in `run_tasks.sh` and launch experiments:
 ```bash
 bash run_tasks.sh
 ```
