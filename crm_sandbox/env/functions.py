@@ -774,7 +774,8 @@ def find_id_with_max_value(values_by_id, sf_connector=None):
         if not all(isinstance(value, (int, float)) for value in values_by_id.values()):
             return "Error: All values in the dictionary must be numeric"
         
-        return max(values_by_id, key=values_by_id.get)
+        max_value = max(values_by_id.values())
+        return [key for key, value in values_by_id.items() if value == max_value]
     
     except Exception as e:
         return f"Error: An unexpected error occurred - {str(e)}"
@@ -800,7 +801,8 @@ def find_id_with_min_value(values_by_id, sf_connector=None):
         if not all(isinstance(value, (int, float)) for value in values_by_id.values()):
             return "Error: All values in the dictionary must be numeric"
         
-        return min(values_by_id, key=values_by_id.get)
+        min_value = min(values_by_id.values())
+        return [key for key, value in values_by_id.items() if value == min_value]
     
     except Exception as e:
         return f"Error: An unexpected error occurred - {str(e)}"
