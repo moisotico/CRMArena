@@ -17,9 +17,9 @@ def run():
     if args.task_category == "all":
         selected_tasks = TASKS_NATURAL
     elif "," in args.task_category:
-        selected_tasks = [task for task in TASKS_NATURAL if task["type"] in args.task_category.split(",")]
+        selected_tasks = [task for task in TASKS_NATURAL if task["task"] in args.task_category.split(",")]
     else:
-        selected_tasks = [task for task in TASKS_NATURAL if task["type"] == args.task_category]
+        selected_tasks = [task for task in TASKS_NATURAL if task["task"] == args.task_category]
     print(f"Loaded {len(selected_tasks)} tasks")
     start_time = datetime.now()
     print(f"Starting evaluation at {start_time}")
@@ -59,7 +59,7 @@ def run():
             )
             result = {
                 "task_id": idx,
-                "task_type": task["type"],
+                "task_type": task["task"],
                 "gt_answer": task["answer"],
                 "reward": reward,
                 "agent_info": agent.info,
@@ -69,7 +69,7 @@ def run():
             traceback.print_exc()
             result = {
                 "task_id": idx,
-                "task_type": task["type"],
+                "task_type": task["task"],
                 "gt_answer": task["answer"],
                 "reward": 0,
                 "agent_info": {
