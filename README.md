@@ -1,7 +1,7 @@
-# CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments
+# [NAACL 2025] CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments
 
 <div align="center">
-<a href="https://pluslabnlp.github.io/"><img src="figures/crmarena_logo.png" height="120" ></a>
+<a href="https://arxiv.org/abs/2411.02305"><img src="figures/crmarena_logo.png" height="120" ></a>
 </div>
 
 <div align="center">
@@ -99,7 +99,7 @@ bash run_tasks.sh
 If you find this work useful, please consider citing:
 
 ```bibtex
-@misc{huang-etal-2024-crmarena,
+@inproceedings{huang-etal-2025-crmarena,
     title = "CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments",
     author = "Huang, Kung-Hsiang  and
       Prabhakar, Akshara  and
@@ -110,10 +110,8 @@ If you find this work useful, please consider citing:
       Xiong, Caiming  and
       Laban, Philippe  and
       Wu, Chien-Sheng",
-    year = "2024",
-    archivePrefix = "arXiv",
-    eprint={2411.02305},
-    primaryClass={cs.CL}
+    booktitle = "Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)",
+    year = "2025",
 }
 ```
 
