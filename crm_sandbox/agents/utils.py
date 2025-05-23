@@ -56,6 +56,12 @@ TOGETHER_MODELS_MAP = {
     },
     "llama3.1-70b-instruct" : {
         "name": "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"
+    },
+    "llama4-maverick-17b-128e-instruct" : {
+        "name": "together_ai/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+    },
+    "deepseek-r1" : {
+        "name": "together_ai/deepseek-ai/DeepSeek-R1"
     }
 }
 
@@ -65,7 +71,25 @@ VERTEX_MODELS_MAP = {
   },
   "llama3.1-70b-instruct" : {
         "name": "vertex_ai/meta/llama3-70b-instruct-maas"
-    }
+    },
+  "llama3.1-8b-instruct" : {
+        "name": "vertex_ai/meta/llama3-8b-instruct-maas"
+    },
+  "llama4-maverick-17b-128e-instruct": {
+        "name": "vertex_ai/meta/llama-4-maverick-17b-128e-instruct-maas"
+  },
+  "gemini-2.5-flash-preview-04-17": {
+        "name": "vertex_ai/gemini-2.5-flash-preview-04-17"
+  },
+  "gemini-2.5-flash-preview-04-17-thinking-4096":{
+        "name": "vertex_ai/gemini-2.5-flash-preview-04-17"
+  },
+  "gemini-2.5-pro-preview-03-25": {
+        "name": "vertex_ai/gemini-2.5-pro-preview-03-25"
+  },
+  "gemini-2.0-flash-001":{
+        "name": "vertex_ai/gemini-2.0-flash-001"
+  }
 }
 
 ### Utils ###

@@ -1050,7 +1050,7 @@ def get_issues(sf_connector=None):
     except Exception as e:
         return f"Error: An unexpected error occurred - {str(e)}"
   
-def submit(content, sf_connector=None):
+def respond(content, sf_connector=None):
     '''
     Returns the response content.
     '''
@@ -1799,10 +1799,10 @@ get_issues.__info__ = {
     }
 }
 
-submit.__info__ = {
+respond.__info__ = {
     "type": "function",
     "function": {
-        "name": "submit",
+        "name": "respond",
         "description": "Returns the input content without modification.",
         "parameters": {
             "type": "object",

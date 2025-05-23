@@ -23,9 +23,9 @@ def chat_completion_request(
         model=model,
         temperature=0.0,
         top_p=1.0,
-        max_tokens=3500,
+        max_tokens=3500 if model not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000,
         tools=tools if "llama" not in model else None, ## llama tool_calling through prompt
-        additional_drop_params=["temperature"] if model in ["o1-mini", "o1-preview"] else []
+        additional_drop_params=["temperature", "top_p"] if model in ["o1-mini", "o1-preview", "o1-2024-12-17"] else []
     )
     return res
     
@@ -57,7 +57,7 @@ class ToolCallAgent:
         elif "vertex" in provider and self.model in VERTEX_MODELS_MAP:
             self.model = VERTEX_MODELS_MAP[self.model]["name"]
         else:
-            assert self.model in ["o1-mini", "o1-preview", "gpt-4o-2024-08-06", "gpt-3.5-turbo-0125"], "Invalid model name"
+            assert self.model in ["o1-mini", "o1-2024-12-17", "o1-preview", "gpt-4o-2024-08-06", "gpt-3.5-turbo-0125"], "Invalid model name"
             
 
     def _build_schema(self, schema_obj):
@@ -78,7 +78,7 @@ class ToolCallAgent:
             self.sys_prompt += SYSTEM_METADATA.format(system_metadata=args["metadata"]["required"], system="Salesforce instance") # add task/query-specific metadata here
         if self.eval_mode == "aided" and "optional" in args["metadata"]:
             self.sys_prompt += "\n" + args["metadata"]["optional"]
-        if self.model not in ["o1-mini", "o1-preview"]:
+        if self.model not in ["o1-mini", "o1-2024-12-17", "o1-preview"]:
             self.messages = [{"role": "system", "content": self.sys_prompt.strip()}]
             self.messages.append({"role": "user", "content": args["query"].strip()})
         else:
@@ -104,7 +104,7 @@ class ToolCallAgent:
                 top_p=1.0,
                 max_tokens=3500,
                 tools=self.tools if "llama" not in self.model else None, ## llama tool_calling through prompt
-                additional_drop_params=["temperature"] if self.model in ["o1-mini", "o1-preview"] else []
+                additional_drop_params=["temperature"] if self.model in ["o1-mini", "o1-preview", "o1-2024-12-17"] else []
             )
             message = res.choices[0].message.model_dump()
             usage = res.usage
@@ -135,7 +135,7 @@ class ToolCallAgent:
                             "role": "tool",
                             "tool_call_id": message["tool_calls"][0]["id"].strip(),
                             "name": message["tool_calls"][0]["function"]["name"].strip(),
-                            "content": f"Invalid tool call argument. Please make a valid tool call using the tools provided or submit the final answer using the 'submit' tool."
+                            "content": f"Invalid tool call argument. Please make a valid tool call using the tools provided or submit the final answer using the 'respond' tool."
                         }
                     )
                 # if no valid tool_call or not llama
@@ -201,7 +201,7 @@ class ToolCallAgent:
             action = {}
             # no tool call and non-null message
             if len(parsed_output) == 1 and parsed_output[0]:
-                action["name"] = "submit"
+                action["name"] = "respond"
                 action["arguments"] = parsed_output[0]
                 return action
             # proper tool call

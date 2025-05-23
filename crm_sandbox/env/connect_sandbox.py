@@ -14,9 +14,11 @@ METADATA_FILE = f"{DATA_DIR}/training_org_full_object_metadata_superset.jsonl"
 
 
 class SalesforceConnector:
-    def __init__(self, auth=None, schema_file=FULL_SCHEMA_FILE):
+    def __init__(self, auth=None, schema_file=FULL_SCHEMA_FILE, org_type="b2b"):
+        
+        assert org_type in ["b2b", "b2c", "original"], "Invalid organization type"
         if not auth:
-            auth = self.sf_auth()
+            auth = self.sf_auth(org_type)
         if auth.get("username"):
             self.sf = Salesforce(username=auth["username"], password=auth["password"], security_token=auth["security_token"])
         else:
@@ -71,28 +73,37 @@ class SalesforceConnector:
     
     
     @staticmethod
-    def sf_auth():
+    def sf_auth(org_type: str):
         auth = dict()
-        if "SALESFORCE_SECURITY_TOKEN" in os.environ:
-            try:
+        print(f"Using {org_type} Salesforce credentials")
+        if org_type == "b2b":
+            if "SALESFORCE_B2B_SECURITY_TOKEN" in os.environ:
+             
+                auth = {
+                    "username" : os.environ["SALESFORCE_B2B_USERNAME"],
+                    "password" : os.environ["SALESFORCE_B2B_PASSWORD"],
+                    "security_token" : os.environ["SALESFORCE_B2B_SECURITY_TOKEN"]
+                }
+                return auth
+        elif org_type == "b2c":
+            if "SALESFORCE_B2C_SECURITY_TOKEN" in os.environ:
+                auth = {
+                    "username" : os.environ["SALESFORCE_B2C_USERNAME"],
+                    "password" : os.environ["SALESFORCE_B2C_PASSWORD"],
+                    "security_token" : os.environ["SALESFORCE_B2C_SECURITY_TOKEN"]
+                }
+                return auth
+        elif org_type == "original":
+            print("Using original Salesforce credentials")
+            if "SALESFORCE_SECURITY_TOKEN" in os.environ:
                 auth = {
                     "username" : os.environ["SALESFORCE_USERNAME"],
                     "password" : os.environ["SALESFORCE_PASSWORD"],
                     "security_token" : os.environ["SALESFORCE_SECURITY_TOKEN"]
                 }
                 return auth
-            except KeyError as e:
-                print(f"Missing environment variable in Salesforce session setup: {e}")
-                if "SALESFORCE_INSTANCE_URL" in os.environ:
-                    try:
-                        auth = {
-                            "instance_url" : os.environ["SALESFORCE_INSTANCE_URL"],
-                            "session_id" : os.environ["SALESFORCE_SESSION_ID"],
-                        }
-                        return auth
-                    except KeyError as e:
-                        print(f"Missing environment variable in Salesforce session setup: {e}")
         raise ValueError("No Salesforce credentials found in environment variables!")
+    
 if __name__ == "__main__":
     load_dotenv()
     sf = SalesforceConnector()

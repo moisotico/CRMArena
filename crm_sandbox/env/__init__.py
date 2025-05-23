@@ -23,7 +23,7 @@ TOOLS = [
     search_knowledge_articles,
     search_products,
     get_issues,
-    submit,
+    respond,
     get_livechat_transcript_by_case_id,
     get_email_messages_by_case_id
 ]
