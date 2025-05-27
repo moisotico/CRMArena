@@ -1,14 +1,14 @@
 # CRMArena
 
 <div align="center">
-<a href="https://arxiv.org/abs/2411.02305"><img src="figures/crmarena_logo.png" height="120" ></a>
+<a href="https://arxiv.org/abs/2505.18878"><img src="figures/crmarena_logo.png" height="120" ></a>
 </div>
 
 
 <div align="center">
 <strong>Salesforce AI Research</strong>
 </div>
-This repo contains the evaluation code for the paper "<a href="https://arxiv.org/abs/2501.XXXXX">CRMArena-Pro: Holistic Assessment of LLM Agents Across Diverse Business Scenarios and Interactions</a>" and "<a href="https://arxiv.org/abs/2411.02305">CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments</a>"
+This repo contains the evaluation code for the paper "<a href="https://arxiv.org/abs/2505.18878">CRMArena-Pro: Holistic Assessment of LLM Agents Across Diverse Business Scenarios and Interactions</a>" and "<a href="https://arxiv.org/abs/2411.02305">CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments</a>"
 <hr>
 
 
@@ -21,7 +21,7 @@ This repo contains the evaluation code for the paper "<a href="https://arxiv.org
 <a href='https://huggingface.co/spaces/Salesforce/CRMArena-Leaderboard'><img src='https://img.shields.io/badge/🏆_Leaderboard-CRMArena-orange.svg?style=for-the-badge' alt='CRMArena Leaderboard on Hugging Face'></a>
 
 ### 🚀 CRMArena-Pro
-<a href='https://arxiv.org/abs/2501.XXXXX'><img src='https://img.shields.io/badge/📄_arXiv-2501.XXXXX-b31b1b.svg?style=for-the-badge' alt='arXiv: CRMArena-Pro Paper'></a>
+<a href='https://arxiv.org/abs/2505.18878'><img src='https://img.shields.io/badge/📄_arXiv-2505.18878-b31b1b.svg?style=for-the-badge' alt='arXiv: CRMArena-Pro Paper'></a>
 <a href='https://huggingface.co/datasets/Salesforce/CRMArenaPro'><img src='https://img.shields.io/badge/🤗_Dataset-CRMArenaPro-blue.svg?style=for-the-badge' alt='CRMArena-Pro Data on Hugging Face'></a>
 
 
@@ -31,7 +31,7 @@ This repo contains the evaluation code for the paper "<a href="https://arxiv.org
 
 ## 🔔News
 
-- **🌟 [2025-05] Introducing [CRMArena-Pro](...) - a major expansion of the original CRMArena featuring enhanced support for diverse business applications, industry types, and interactive scenarios! 🚀**
+- **🌟 [2025-05] Introducing [CRMArena-Pro](https://arxiv.org/abs/2505.18878) - a major expansion of the original CRMArena featuring enhanced support for diverse business applications, industry types, and interactive scenarios! 🚀**
 - **🎉 [2024-01] CRMArena has been accepted by NAACL 2025!**
 
 
@@ -179,10 +179,9 @@ If you find this work useful, please consider citing:
       Savarese, Silvio  and
       Xiong, Caiming  and
       Wu, Chien-Sheng",
-    journal = "arXiv preprint arXiv:2501.XXXXX",
+    journal = "arXiv preprint arXiv:2505.18878",
     year = "2025",
 }
-
 ```
 
 ## Ethical Considerations
