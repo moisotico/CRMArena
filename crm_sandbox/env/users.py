@@ -47,7 +47,7 @@ Your output: Hi! I'm trying to figure out which agent performed the best in Q2 i
 
 # Example 2 (omitting criteria)
 Instruction: Which agent has the shortest handle time in Q2 in 2025?
-Your output: Can you tell me which agent has the longest average handle time?
+Your output: Can you tell me which agent has the shortest average handle time?
 
 
 # Example 3 (completing the goal)
