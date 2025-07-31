@@ -2,9 +2,9 @@
 
 # List of agent models to iterate over
 AGENT_MODELS=(
-    "o1-2024-12-17"
+    # "o1-2024-12-17"
     # "gpt-4o-2024-11-20"
-    # "gpt-4o-mini-2024-07-18"
+    "gpt-4o-mini-2024-07-18"
     # "llama3.1-405b-instruct"
     # "llama3.1-70b-instruct"
     # "llama3.1-8b-instruct"

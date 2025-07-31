@@ -154,7 +154,7 @@ def run():
                 data_res = json.load(f)
         with open(ckpt_path, "w") as f:
             json.dump(data_res + [result], f, indent=2)
-        time.sleep(1)
+        time.sleep(args.task_delay)
     end_time = datetime.now()
     print(f"Finished evaluation at {end_time}")
     
@@ -233,6 +233,12 @@ if __name__ == "__main__":
         type=lambda x: {'true': True, 'false': False}[x.lower()],
         default=False,
         help="Whether to use a privacy-aware prompt. Accepts 'true' or 'false'. (default: %(default)s)"
+    )
+    parser.add_argument(
+        "--task_delay",
+        type=float,
+        default=1.0,
+        help="Delay in seconds between tasks to avoid rate limiting (default: 1.0)"
     )
     parser.add_argument("--log_dir", type=str, default="logs")
     args = parser.parse_args()

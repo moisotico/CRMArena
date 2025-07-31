@@ -4,7 +4,7 @@
 AGENT_MODELS=(
     "o1-2024-12-17"
     # "gpt-4o-2024-11-20"
-    # "gpt-4o-mini-2024-07-18"
+    "gpt-4o-mini-2024-07-18"
     # "llama3.1-405b-instruct"
     # "llama3.1-70b-instruct"
     # "llama3.1-8b-instruct"
@@ -104,7 +104,8 @@ for AGENT_MODEL in "${AGENT_MODELS[@]}"; do
                     --llm_provider "$LITELLM_PROVIDER" \
                     --reuse_results \
                     --privacy_aware_prompt "$PRIVACY_AWARE_PROMPT" \
-                    --org_type "$ORG_TYPE" > "$LOG_FILE" 2>&1 &
+                    --org_type "$ORG_TYPE" \
+                    --task_delay 3.0 > "$LOG_FILE" 2>&1 &
                     
             else
                 python -u run_tasks.py \
@@ -116,7 +117,8 @@ for AGENT_MODEL in "${AGENT_MODELS[@]}"; do
                     --llm_provider "$LITELLM_PROVIDER" \
                     --reuse_results \
                     --privacy_aware_prompt "$PRIVACY_AWARE_PROMPT" \
-                    --org_type "$ORG_TYPE" > "$LOG_FILE" 2>&1 &
+                    --org_type "$ORG_TYPE" \
+                    --task_delay 3.0 > "$LOG_FILE" 2>&1 &
                     
             fi
         done

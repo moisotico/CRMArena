@@ -111,9 +111,12 @@ class ChatAgent:
         current_agent_turn = 0
         # for turn_id in range(self.max_turns):
         while current_agent_turn < self.max_turns:
-            # sleep for non-openai models
+            # sleep for rate limiting
             if self.provider != "openai":
                 time.sleep(5)
+            else:
+                # Add delay for OpenAI to avoid rate limits
+                time.sleep(2)
             info = {}
             current_agent_turn += 1
             # turn off thinking for gemini 2.5 flash

@@ -1,7 +1,36 @@
 # CRMArena
 
 <div align="center">
-<a href="https://arxiv.org/abs/2505.18878"><img src="figures/crmarena_logo.png" height="120" ></a>
+<a href="h### Installation
+
+#### Option 1: Using uv (Recommended for faster installation)
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create a virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
+```
+
+#### Option 2: Using pip (Traditional)
+```bash
+# Create a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install the package
+pip install -e .
+```
+
+#### Alternative: Install from requirements file
+```bash
+# If you prefer to use the requirements file directly
+uv pip install -r requirements-fixed.txt  # with uv
+# or
+pip install -r requirements-fixed.txt     # with pip
+```/abs/2505.18878"><img src="figures/crmarena_logo.png" height="120" ></a>
 </div>
 
 
@@ -41,9 +70,24 @@ This repo contains the evaluation code for the paper "<a href="https://arxiv.org
 
 ## Quickstart
 
+### Installation
+
+#### Option 1: Using pip (Traditional)
 ```bash
 pip install -e .
 ```
+
+#### Option 2: Using uv (Recommended)
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies using uv
+uv pip install -r requirements-fixed.txt
+uv pip install -e .
+```
+
+### Environment Setup
 
 To access our org, use the following credentials. 
 
@@ -123,6 +167,42 @@ b2c_schema = load_dataset("Salesforce/CRMArenaPro", "b2c_schema")
 ```
 For more details on data loading and structure, please refer to `crm_sandbox/data/assets.py`.
 
+### Command Line Arguments
+
+The `run_tasks.py` script supports various command-line arguments for customization:
+
+#### Core Arguments:
+- `--model`: The LLM model to use (e.g., `gpt-4o-mini-2024-07-18`, `o1-2024-12-17`)
+- `--agent_strategy`: Agent strategy (`react`, `act`, `tool_call`, `tool_call_flex`)
+- `--task_category`: Specific task category or `all` for all tasks
+- `--org_type`: Organization type (`b2b`, `b2c`, `original`)
+- `--interactive`: Enable interactive mode (only supported with `react` strategy)
+
+#### Rate Limiting Arguments:
+- `--task_delay`: Delay between tasks in seconds (default: 1.0, recommended: 3.0+ for OpenAI)
+
+#### Other Arguments:
+- `--llm_provider`: LLM provider (`openai`, `vertex_ai`, `together_ai`, `bedrock`)
+- `--agent_eval_mode`: Evaluation mode (`default`, `aided`)
+- `--max_turns`: Maximum agent turns per task (default: 20)
+- `--max_user_turns`: Maximum user turns in interactive mode (default: 10)
+- `--reuse_results`: Reuse results from previous runs
+- `--privacy_aware_prompt`: Use privacy-aware prompts (`true`/`false`)
+- `--log_dir`: Directory for saving results and logs
+
+#### Example Usage:
+```bash
+# Run specific task with custom rate limiting
+python run_tasks.py \
+    --model gpt-4o-mini-2024-07-18 \
+    --task_category knowledge_qa \
+    --agent_strategy react \
+    --org_type b2b \
+    --llm_provider openai \
+    --task_delay 5.0 \
+    --reuse_results
+```
+
 We have prepared evaluation scripts to simplify the process of running experiments.
 
 ### Running CRMArena Experiments
@@ -145,7 +225,31 @@ To run experiments for CRMArena-Pro:
 bash run_tasks_crmarena_pro.sh
 ```
 
+**Note**: The shell scripts are pre-configured with `--task_delay 3.0` for better rate limiting when using OpenAI models.
+
 These scripts will execute `run_tasks.py` with the specified configurations and save the results and logs in appropriately named directories.
+
+### Rate Limiting and API Management
+
+The evaluation scripts include built-in rate limiting to prevent API timeouts, especially when using OpenAI models:
+
+#### Built-in Rate Limiting Features:
+- **Task-level delays**: Configurable delay between tasks (default: 1.0 seconds, increased to 3.0 seconds in shell scripts)
+- **Provider-specific delays**: 2-second delays for OpenAI API calls, 5-second delays for other providers
+- **Tool call delays**: 3-second delays between tool calls in tool-based strategies
+
+#### Customizing Rate Limits:
+You can adjust rate limiting by modifying the `--task_delay` parameter in the shell scripts or when running `run_tasks.py` directly:
+
+```bash
+# Example: Use 5-second delays between tasks for conservative rate limiting
+python run_tasks.py --task_delay 5.0 --model gpt-4o-mini-2024-07-18 --task_category knowledge_qa
+```
+
+#### Additional Options for Rate Limiting:
+- Run specific task categories instead of "all" tasks to reduce load
+- Monitor your API provider's rate limit dashboard
+- Consider running tasks sequentially instead of in parallel by removing `&` from shell scripts
 
 
 ## Citation
