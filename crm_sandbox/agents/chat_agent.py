@@ -4,8 +4,8 @@ import litellm
 litellm.set_verbose = False
 from typing import Dict, List
 import time, traceback
-from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP
+from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
+from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP
 import together
 
 
@@ -59,7 +59,8 @@ class ChatAgent:
             self.model = TOGETHER_MODELS_MAP[self.model]["name"]
         elif "vertex" in provider and self.model in VERTEX_MODELS_MAP:
             self.model = VERTEX_MODELS_MAP[self.model]["name"]
-            
+        elif provider == "anthropic" and self.model in ANTHROPIC_MODELS_MAP:
+            self.model = ANTHROPIC_MODELS_MAP[self.model]["name"]
         else:
             pass
         if self.model in ["o1-mini", "o1-preview", "o1-2024-12-17", "o3-mini-2025-01-31"]:
@@ -112,11 +113,15 @@ class ChatAgent:
         # for turn_id in range(self.max_turns):
         while current_agent_turn < self.max_turns:
             # sleep for rate limiting
-            if self.provider != "openai":
-                time.sleep(5)
-            else:
+            if self.provider == "openai":
                 # Add delay for OpenAI to avoid rate limits
                 time.sleep(2)
+            elif self.provider == "anthropic":
+                # Add delay for Anthropic to avoid rate limits
+                time.sleep(2)
+            else:
+                # Default delay for other providers
+                time.sleep(5)
             info = {}
             current_agent_turn += 1
             # turn off thinking for gemini 2.5 flash

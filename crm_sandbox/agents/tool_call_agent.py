@@ -5,7 +5,7 @@ import re, traceback, ast, time
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from crm_sandbox.agents.prompts import SCHEMA_STRING, SYSTEM_METADATA, NATIVE_FC_PROMPT, CUSTOM_FC_PROMPT, FC_RULE_STRING, FC_FLEX_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, fc_prompt_builder
+from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, fc_prompt_builder
 
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(10))
@@ -56,6 +56,8 @@ class ToolCallAgent:
             self.model = TOGETHER_MODELS_MAP[self.model]["name"]
         elif "vertex" in provider and self.model in VERTEX_MODELS_MAP:
             self.model = VERTEX_MODELS_MAP[self.model]["name"]
+        elif provider == "anthropic" and self.model in ANTHROPIC_MODELS_MAP:
+            self.model = ANTHROPIC_MODELS_MAP[self.model]["name"]
         else:
             assert self.model in ["o1-mini", "o1-2024-12-17", "o1-preview", "gpt-4o-2024-08-06", "gpt-3.5-turbo-0125"], "Invalid model name"
             

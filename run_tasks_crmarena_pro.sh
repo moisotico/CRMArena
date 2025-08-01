@@ -2,9 +2,11 @@
 
 # List of agent models to iterate over
 AGENT_MODELS=(
-    "o1-2024-12-17"
+    # "o1-2024-12-17"
     # "gpt-4o-2024-11-20"
-    "gpt-4o-mini-2024-07-18"
+    # "gpt-4o-mini-2024-07-18"
+    # "us.meta.llama3-2-3b-instruct-v1:0"  # Bedrock Llama model for testing
+    "claude-3-5-sonnet-20240620" # Anthropic model for testing
     # "llama3.1-405b-instruct"
     # "llama3.1-70b-instruct"
     # "llama3.1-8b-instruct"
@@ -63,6 +65,10 @@ for AGENT_MODEL in "${AGENT_MODELS[@]}"; do
 
             if [[ "$AGENT_MODEL" == gpt* ]] || [[ "$AGENT_MODEL" == o1* ]]; then
                 LITELLM_PROVIDER=openai
+            if [[ "$AGENT_MODEL" == claude* ]]; then
+                LITELLM_PROVIDER=anthropic
+            elif [[ "$AGENT_MODEL" == *meta* ]] || [[ "$AGENT_MODEL" == anthropic.* ]] || [[ "$AGENT_MODEL" == mistral.* ]]; then
+                LITELLM_PROVIDER=bedrock
             elif [[ "$AGENT_MODEL" == llama4* ]]; then
                 LITELLM_PROVIDER=together_ai
             else

@@ -1,7 +1,6 @@
 # CRMArena
 
-<div align="center">
-<a href="h### Installation
+### Installation
 
 #### Option 1: Using uv (Recommended for faster installation)
 ```bash
@@ -131,9 +130,10 @@ First, create a `.env` file by copying from `.env.example` which already contain
 cp .env.example .env
 ```
 
-Then, store your Salesforce org / OpenAI / AWS Bedrock / TogetherAI API keys in `.env`
+Then, store your Salesforce org / OpenAI / Anthropic / AWS Bedrock / TogetherAI API keys in `.env`
 ```bash
 OPENAI_API_KEY=...
+ANTHROPIC_API_KEY=...
 ...
 ```
 
@@ -182,7 +182,7 @@ The `run_tasks.py` script supports various command-line arguments for customizat
 - `--task_delay`: Delay between tasks in seconds (default: 1.0, recommended: 3.0+ for OpenAI)
 
 #### Other Arguments:
-- `--llm_provider`: LLM provider (`openai`, `vertex_ai`, `together_ai`, `bedrock`)
+- `--llm_provider`: LLM provider (`openai`, `anthropic`, `vertex_ai`, `together_ai`, `bedrock`)
 - `--agent_eval_mode`: Evaluation mode (`default`, `aided`)
 - `--max_turns`: Maximum agent turns per task (default: 20)
 - `--max_user_turns`: Maximum user turns in interactive mode (default: 10)

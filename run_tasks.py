@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import json, os
 from crm_sandbox.agents import ChatAgent, ToolCallAgent
-from crm_sandbox.agents.utils import BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP
+from crm_sandbox.agents.utils import BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP
 from crm_sandbox.data.assets import TASKS_ORIGINAL, SCHEMA_ORIGINAL, TASKS_B2B, TASKS_B2B_INTERACTIVE, TASKS_B2C, TASKS_B2C_INTERACTIVE, B2B_SCHEMA, B2C_SCHEMA, EXTERNAL_FACING_TASKS
 from crm_sandbox.env.env import ChatEnv, ToolEnv, InteractiveChatEnv
 from crm_sandbox.env import TOOLS, TOOLS_FULL
@@ -166,7 +166,13 @@ if __name__ == "__main__":
         type=str,
         help="The model to use for the agent",
         default="o1-mini",
-        choices = ["o1-mini", "gpt-4o", "gpt-4-turbo"].extend(BEDROCK_MODELS_MAP.keys()),
+        choices=[
+            "o1-mini", "gpt-4o", "gpt-4-turbo",
+            *BEDROCK_MODELS_MAP.keys(),
+            *ANTHROPIC_MODELS_MAP.keys(),
+            *TOGETHER_MODELS_MAP.keys(),
+            *VERTEX_MODELS_MAP.keys()
+        ]
     )
     parser.add_argument(
         "--agent_strategy",
@@ -184,7 +190,7 @@ if __name__ == "__main__":
         "--llm_provider",
         type=str,
         default="bedrock",
-        choices=["bedrock", "together_ai", "openai", "vertex_ai"]
+        choices=["bedrock", "together_ai", "openai", "vertex_ai", "anthropic"]
     )
     parser.add_argument(
         "--task_category",

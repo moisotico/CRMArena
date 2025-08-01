@@ -6,42 +6,32 @@ from rouge import Rouge
 
 ## MODEL MAP ##
 BEDROCK_MODELS_MAP = {
-    "llama-3.1-70b-instruct": {
-        "name": "meta.llama3-1-70b-instruct-v1:0",
-        "region": "us-west-2",
-    },
-    "llama-3.1-70b-instruct": {
+    # AWS Bedrock (all in us-west-2)
+    "meta.llama3-1-8b-instruct-v1:0": {
+        "provider": "bedrock",
         "name": "meta.llama3-1-8b-instruct-v1:0",
         "region": "us-west-2",
     },
-    "llama-3.1-405b-instruct": {
-        "name": "meta.llama3-1-405b-instruct-v1:0",
+    "us.meta.llama3-2-1b-instruct-v1:0": {
+        "provider": "bedrock",
+        "name": "us.meta.llama3-2-1b-instruct-v1:0",
         "region": "us-west-2",
     },
-    "claude-3-5-sonnet-20240620" : {
-        "name": "anthropic.claude-3-5-sonnet-20240620-v1:0",
-        "region": "us-east-1",
-    },
-    "claude-3-opus-20240229" : {
-        "name": "anthropic.claude-3-opus-20240229-v1:0",
+    "us.meta.llama3-2-3b-instruct-v1:0": {
+        "provider": "bedrock",
+        "name": "us.meta.llama3-2-3b-instruct-v1:0",
         "region": "us-west-2",
     },
-    "claude-3-haiku-20240307" : {
-        "name": "anthropic.claude-3-haiku-20240307-v1:0",
+    "us.meta.llama3-3-70b-instruct-v1:0": {
+        "provider": "bedrock",
+        "name": "us.meta.llama3-3-70b-instruct-v1:0",
         "region": "us-west-2",
     },
-    "mistral_large": {
-        "name": "mistral.mistral-large-2407-v1:0",
+    "us.meta.llama4-maverick-17b-instruct-v1:0": {
+        "provider": "bedrock",
+        "name": "us.meta.llama4-maverick-17b-instruct-v1:0",
         "region": "us-west-2",
     },
-    "mixtral_8x7b_instruct": {
-        "name": "mistral.mixtral-8x7b-instruct-v0:1",
-        "region": "us-east-1",
-    },
-    "mistral_7b_instruct_v0.2" : {
-        "name": "mistral.mistral-7b-instruct-v0:2",
-        "region": "us-west-2",
-    }
 }
 
 TOGETHER_MODELS_MAP = {
@@ -90,6 +80,30 @@ VERTEX_MODELS_MAP = {
   "gemini-2.0-flash-001":{
         "name": "vertex_ai/gemini-2.0-flash-001"
   }
+}
+
+ANTHROPIC_MODELS_MAP = {
+    "claude-3-5-sonnet-20240620": {
+        "name": "claude-3-5-sonnet-20240620"
+    },
+    "claude-3-opus-20240229": {
+        "name": "claude-3-opus-20240229"
+    },
+    "claude-3-haiku-20240307": {
+        "name": "claude-3-haiku-20240307"
+    },
+    "claude-3-sonnet-20240229": {
+        "name": "claude-3-sonnet-20240229"
+    },
+    "claude-sonnet-4-20250514": {
+        "name": "claude-sonnet-4-20250514"
+    },
+    "claude-3-7-sonnet-20240229": {
+        "name": "claude-3-7-sonnet-20240229"
+    },
+    "claude-3-5-haiku-20241022": {
+        "name": "claude-3-5-haiku-20241022"
+    }
 }
 
 ### Utils ###
