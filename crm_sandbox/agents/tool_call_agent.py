@@ -1,3 +1,4 @@
+
 import json, os
 from litellm import completion, completion_cost
 from typing import Dict, List, Any
@@ -8,6 +9,9 @@ from crm_sandbox.agents.prompts import SCHEMA_STRING, SYSTEM_METADATA, NATIVE_FC
 from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, fc_prompt_builder
 
 
+
+
+# Patch: Use litellm for Bedrock with bearer token and region, matching MultiProviderClient _generate_aws_bedrock
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(10))
 def chat_completion_request(
     messages,
@@ -18,6 +22,10 @@ def chat_completion_request(
     max_tokens=3500,
     additional_drop_params=[]
 ):
+    # If using Bedrock and bearer token, set env vars for litellm
+    if (model.startswith("meta.llama3") or model.startswith("us.meta.llama")) and os.environ.get("AWS_BEARER_TOKEN_BEDROCK") and os.environ.get("AWS_REGION_NAME"):
+        model = f"bedrock/{model}"
+        print(f"[litellm] Using Bedrock with bearer token for model: {model}")
     res = completion(
         messages=messages,
         model=model,
