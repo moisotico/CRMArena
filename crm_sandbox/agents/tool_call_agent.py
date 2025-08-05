@@ -1,6 +1,8 @@
 
-import json, os
-from litellm import completion, completion_cost
+import json
+import os
+import litellm
+# from litellm import completion
 from typing import Dict, List, Any
 import re, traceback, ast, time
 from openai import OpenAI
@@ -9,7 +11,8 @@ from crm_sandbox.agents.prompts import SCHEMA_STRING, SYSTEM_METADATA, NATIVE_FC
 from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, fc_prompt_builder
 
 
-
+from dotenv import load_dotenv
+load_dotenv()
 
 # Patch: Use litellm for Bedrock with bearer token and region, matching MultiProviderClient _generate_aws_bedrock
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(10))
@@ -26,7 +29,19 @@ def chat_completion_request(
     if (model.startswith("meta.llama3") or model.startswith("us.meta.llama")) and os.environ.get("AWS_BEARER_TOKEN_BEDROCK") and os.environ.get("AWS_REGION_NAME"):
         model = f"bedrock/{model}"
         print(f"[litellm] Using Bedrock with bearer token for model: {model}")
-    res = completion(
+        
+        # Set AWS environment variables for LiteLLM (required for v1.74.15+)
+        bearer_token = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+        region = os.environ.get("AWS_REGION_NAME")
+        
+        os.environ['AWS_SESSION_TOKEN'] = bearer_token
+        os.environ['AWS_REGION_NAME'] = region
+        os.environ['AWS_ACCESS_KEY_ID'] = 'dummy'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
+        
+        print("AWS_REGION_NAME:", region)
+        print("AWS credentials configured for LiteLLM")
+    res = litellm.completion(
         messages=messages,
         model=model,
         temperature=0.0,
