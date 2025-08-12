@@ -47,6 +47,32 @@ def run():
     print(f"Starting evaluation at {start_time}")
     selected_tasks = {t['idx']: t for t in selected_tasks}
     
+    # Select appropriate evaluation model based on provider - using a cheaper model for evaluation
+    def get_evaluation_model(provider, agent_model):
+        """Select an appropriate evaluation model based on the provider"""
+        if provider == "openai":
+            return "gpt-4o-mini-2024-07-18"
+        elif provider == "anthropic":
+            return "claude-3-haiku-20240307"
+        elif provider == "bedrock":
+            if agent_model in BEDROCK_MODELS_MAP:
+                return agent_model  # Use the same Bedrock model for evaluation
+            return "us.meta.llama3-2-3b-instruct-v1:0"  # Default Bedrock model
+        elif provider == "together_ai":
+            if agent_model in TOGETHER_MODELS_MAP:
+                return agent_model  # Use the same Together AI model for evaluation
+            return "llama3.1-8b-instruct"  # Default Together AI model
+        elif "vertex" in provider:
+            if agent_model in VERTEX_MODELS_MAP:
+                return agent_model  # Use the same Vertex AI model for evaluation
+            return "gemini-2.0-flash-001"  # Default Vertex AI model
+        else:
+            # Fallback to the agent model itself
+            return agent_model
+    
+    eval_model = get_evaluation_model(args.llm_provider, args.model)
+    print(f"Using evaluation model: {eval_model} with provider: {args.llm_provider}")
+    
     if args.agent_strategy in ["act", "react"]:
         if args.interactive:
             if args.agent_strategy == "act":
@@ -56,9 +82,9 @@ def run():
                 )
             # This implies agent_strategy is "react" if interactive is True
             
-            env = InteractiveChatEnv(tasks=selected_tasks, max_user_turns=args.max_user_turns, org_type=args.org_type)
+            env = InteractiveChatEnv(tasks=selected_tasks, max_user_turns=args.max_user_turns, user_model=eval_model, user_provider=args.llm_provider, org_type=args.org_type)
         else: # Not interactive, both 'act' and 'react' are fine
-            env = ChatEnv(tasks=selected_tasks, org_type=args.org_type)
+            env = ChatEnv(tasks=selected_tasks, user_model=eval_model, user_provider=args.llm_provider, org_type=args.org_type)
     elif args.agent_strategy == "tool_call":
         if args.interactive:
             raise NotImplementedError(

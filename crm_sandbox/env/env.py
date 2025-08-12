@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from crm_sandbox.agents.utils import get_all_metrics
 import litellm
 import json
+import os
 
 class ChatEnv(object):
     def __init__(
@@ -413,8 +414,26 @@ class Evaluator(object):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": model_output}
         ]
+        if (self.model.startswith("meta.llama3") or self.model.startswith("us.meta.llama")) and os.environ.get("AWS_BEARER_TOKEN_BEDROCK") and os.environ.get("AWS_REGION_NAME"):
+            self.model = f"bedrock/{self.model}"
+            print(f"[litellm] Using Bedrock with bearer token for model: {self.model}")
+
+            # Set AWS environment variables for LiteLLM (required for v1.74.15+)
+            bearer_token = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+            region = os.environ.get("AWS_REGION_NAME")
+            
+            os.environ['AWS_SESSION_TOKEN'] = bearer_token
+            os.environ['AWS_REGION_NAME'] = region
+            os.environ['AWS_ACCESS_KEY_ID'] = 'dummy'
+            os.environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
+            
+            print("AWS_REGION_NAME:", region)
+            print("AWS credentials configured for LiteLLM")
+        
         res = litellm.completion(
-            model=self.model, custom_llm_provider=self.provider, messages=messages
+            model=self.model, 
+            custom_llm_provider=self.provider, 
+            messages=messages
         )
         extracted_answers = res.choices[0].message
         try:
