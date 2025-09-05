@@ -7,7 +7,10 @@ import time, traceback
 from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
 from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP
 import together
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 
@@ -19,6 +22,7 @@ class ChatAgent:
         schema = self._build_schema(schema_obj)
         assert strategy in ["react", "act"], "Only react and act strategies supported for now"
         assert agent_type in ["internal", "external"], "Invalid agent type"
+        
         
         if strategy == "react":
             # react strategy
@@ -104,7 +108,7 @@ class ChatAgent:
         # print("----")
         # print(self.sys_prompt)
         # print("----")
-        total_cost = 0.0
+        # total_cost = 0.0
         self.info["observation_sizes"] = []
         done = False
         reward = 0
@@ -124,6 +128,8 @@ class ChatAgent:
                 time.sleep(5)
             info = {}
             current_agent_turn += 1
+            logger.info(f"Agent turn {current_agent_turn} started")
+            logger.info(f"Using temperature: {temperature}")
             # turn off thinking for gemini 2.5 flash
             if self.original_model_name == "gemini-2.5-flash-preview-04-17":
                 thinking = {"type": "disabled", "budget_tokens": 0}
@@ -135,14 +141,13 @@ class ChatAgent:
             res = completion(
                 messages=self.messages,
                 model=self.model,
-                temperature=0.0,
+                temperature=temperature,
                 max_tokens=2000 if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000,
                 top_p=1.0 if self.model not in ["o3-mini-2025-01-31"] else None,
                 thinking= thinking,  
                 # custom_llm_provider=self.provider,
                 additional_drop_params=["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
             )
-
             
             
             message = res.choices[0].message.model_dump()
