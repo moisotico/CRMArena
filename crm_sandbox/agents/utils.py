@@ -32,6 +32,17 @@ BEDROCK_MODELS_MAP = {
         "name": "us.meta.llama4-maverick-17b-instruct-v1:0",
         "region": "us-west-2",
     },
+    # OpenAI GPT-OSS models via Bedrock
+    "gpt-oss-20b": {
+        "provider": "bedrock",
+        "name": "openai.gpt-oss-20b-1:0",
+        "region": "us-west-2",
+    },
+    "gpt-oss-120b": {
+        "provider": "bedrock", 
+        "name": "openai.gpt-oss-120b-1:0",
+        "region": "us-west-2",
+    },
 }
 
 TOGETHER_MODELS_MAP = {
