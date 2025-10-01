@@ -5,7 +5,7 @@ litellm.set_verbose = False
 from typing import Dict, List
 import time, traceback
 from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP
+from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, get_dynamic_max_tokens
 import together
 import logging
 
@@ -65,6 +65,10 @@ class ChatAgent:
             self.model = VERTEX_MODELS_MAP[self.model]["name"]
         elif provider == "anthropic" and self.model in ANTHROPIC_MODELS_MAP:
             self.model = ANTHROPIC_MODELS_MAP[self.model]["name"]
+        elif provider == "custom_server" and self.model in CUSTOM_SERVER_MODELS_MAP:
+            # Handle custom LiteLLM server models
+            self.custom_server_config = CUSTOM_SERVER_MODELS_MAP[self.model]
+            self.model = self.custom_server_config["name"]
         else:
             pass
         if self.model in ["o1-mini", "o1-preview", "o1-2024-12-17", "o3-mini-2025-01-31"]:
@@ -129,7 +133,6 @@ class ChatAgent:
             info = {}
             current_agent_turn += 1
             logger.info(f"Agent turn {current_agent_turn} started")
-            logger.info(f"Using temperature: {temperature}")
             # turn off thinking for gemini 2.5 flash
             if self.original_model_name == "gemini-2.5-flash-preview-04-17":
                 thinking = {"type": "disabled", "budget_tokens": 0}
@@ -138,16 +141,49 @@ class ChatAgent:
             else:
                 thinking = None
             
-            res = completion(
-                messages=self.messages,
-                model=self.model,
-                temperature=temperature,
-                max_tokens=2000 if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000,
-                top_p=1.0 if self.model not in ["o3-mini-2025-01-31"] else None,
-                thinking= thinking,  
-                # custom_llm_provider=self.provider,
-                additional_drop_params=["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
-            )
+            # Calculate dynamic max_tokens using LiteLLM model specifications
+            try:
+                max_tokens = get_dynamic_max_tokens(self.original_model_name)
+                logger.debug(f"Using dynamic max_tokens for {self.original_model_name}: {max_tokens}")
+            except Exception as e:
+                # Fallback to original logic if there's any issue
+                logger.warning(f"Failed to get dynamic max_tokens for {self.original_model_name}, using fallback: {e}")
+                max_tokens = 2000 if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000
+
+            # Base completion arguments (keep existing logic intact)
+            completion_kwargs = {
+                "messages": self.messages,
+                "model": self.model,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "top_p": 1.0 if self.model not in ["o3-mini-2025-01-31"] else None,
+                "thinking": thinking,
+                "additional_drop_params": ["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
+            }
+            
+            # Add custom server parameters only if needed
+            if self.provider == "custom_server" and hasattr(self, 'custom_server_config'):
+                completion_kwargs["base_url"] = self.custom_server_config["base_url"]
+                completion_kwargs["api_key"] = self.custom_server_config["api_key"]
+            
+            # Retry with exponential backoff for custom server
+            max_retries = 3 if self.provider == "custom_server" else 1
+            logger.info(f"DEBUG: About to call LiteLLM with {max_retries} max retries, provider: {self.provider}")
+            
+            for retry in range(max_retries):
+                try:
+                    logger.info(f"DEBUG: LiteLLM attempt {retry + 1}/{max_retries}")
+                    res = completion(**completion_kwargs)
+                    logger.info(f"DEBUG: LiteLLM call succeeded on attempt {retry + 1}")
+                    break
+                except Exception as e:
+                    if retry < max_retries - 1:
+                        wait_time = 2 ** retry
+                        logger.info(f"LiteLLM call failed (attempt {retry + 1}/{max_retries}), retrying in {wait_time}s: {e}")
+                        time.sleep(wait_time)
+                    else:
+                        logger.info(f"DEBUG: All retry attempts failed, raising exception: {e}")
+                        raise e
             
             
             message = res.choices[0].message.model_dump()

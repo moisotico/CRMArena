@@ -1,8 +1,17 @@
 import re
 import string
+import os
 from collections import Counter
 from sacrebleu.metrics import BLEU
 from rouge import Rouge
+import logging
+
+try:
+    import litellm
+except ImportError:
+    litellm = None
+
+logger = logging.getLogger(__name__)
 
 ## MODEL MAP ##
 BEDROCK_MODELS_MAP = {
@@ -43,6 +52,58 @@ BEDROCK_MODELS_MAP = {
         "name": "openai.gpt-oss-120b-1:0",
         "region": "us-west-2",
     },
+}
+
+# Custom LiteLLM Server Models Map (for neuroserver.georgezlin.com)
+CUSTOM_SERVER_MODELS_MAP = {
+    "anthropic-claude-3.7-sonnet-aws": {
+        "provider": "openai", 
+        "name": "openai/anthropic-claude-3.7-sonnet-aws",
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "anthropic-claude-4.0-opus-aws": {
+        "provider": "openai",
+        "name": "openai/anthropic-claude-4.0-opus-aws", 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "anthropic-claude-4.1-opus-aws": {
+        "provider": "openai",
+        "name": "openai/anthropic-claude-4.1-opus-aws", 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "deepseekr1-aws": {
+        "provider": "openai",
+        "name": "openai/deepseekr1-aws", 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "llama3.1-70b-AWS": {
+        "provider": "openai",
+        "name": "openai/llama3.1-70b-AWS",
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "llama3.2-1b-AWS": {
+        "provider": "openai",
+        "name": "openai/llama3.2-1b-AWS",
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "llama3.2-90b-AWS": {
+        "provider": "openai",
+        "name": "openai/llama3.2-90b-AWS",
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    },
+    "llama3.3-70b-AWS": {
+        "provider": "openai",
+        "name": "openai/llama3.3-70b-AWS",
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
+    }
 }
 
 TOGETHER_MODELS_MAP = {
@@ -238,3 +299,66 @@ def get_all_metrics(prediction, ground_truth):
         "bleu": bleu,
         "rouge": rouge,
     }
+
+
+### Token calculation utilities ###
+
+# Fallback values when model specs not found
+DEFAULT_MAX_TOKENS = 2000
+
+def get_dynamic_max_tokens(original_model_name: str) -> int:
+    """
+    Get appropriate max_tokens value for a model using LiteLLM specifications
+    
+    Args:
+        original_model_name: The original model name (e.g., 'gpt-oss-120b', 'deepseek-r1')
+        
+    Returns:
+        int: Appropriate max_tokens value
+    """
+    # Special handling for certain models that need higher limits
+    special_models = {
+        "o1-mini": 65536,
+        "o1-preview": 32768,
+        "o1-2024-12-17": 32768,
+        "deepseek-r1": 8192,
+        "deepseekr1-aws": 8192,  # Custom server deepseek-r1 model
+        "o3-mini-2025-01-31": 65536,
+        "gemini-2.5-flash-preview-04-17": 8192,
+        "gemini-2.5-flash-preview-04-17-thinking-4096": 8192,
+        "gemini-2.5-pro-preview-03-25": 8192
+    }
+    
+    # Check if original model name has special handling
+    if original_model_name in special_models:
+        logger.debug(f"Using special handling for {original_model_name}: {special_models[original_model_name]}")
+        return special_models[original_model_name]
+    
+    # Map original model names to LiteLLM names for lookup
+    model_name_mapping = {
+        "gpt-oss-20b": "openai.gpt-oss-20b-1:0",
+        "gpt-oss-120b": "openai.gpt-oss-120b-1:0",
+        "us.deepseek.r1-v1:0": "us.deepseek.r1-v1:0",
+        "deepseekr1-aws": "openai/deepseekr1-aws"  # Custom server mapping
+    }
+    
+    # Get the LiteLLM model name
+    litellm_model_name = model_name_mapping.get(original_model_name, original_model_name)
+    
+    # Try to get from LiteLLM model cost data
+    if litellm and hasattr(litellm, 'model_cost') and litellm_model_name in litellm.model_cost:
+        model_info = litellm.model_cost[litellm_model_name]
+        
+        # Prefer max_output_tokens, fallback to max_tokens
+        if 'max_output_tokens' in model_info:
+            max_tokens = model_info['max_output_tokens']
+            logger.debug(f"Found max_output_tokens for {litellm_model_name}: {max_tokens}")
+            return max_tokens
+        elif 'max_tokens' in model_info:
+            max_tokens = model_info['max_tokens']
+            logger.debug(f"Found max_tokens for {litellm_model_name}: {max_tokens}")
+            return max_tokens
+    
+    # Log that we're using fallback
+    logger.info(f"No model cost data found for {litellm_model_name} (original: {original_model_name}), using default: {DEFAULT_MAX_TOKENS}")
+    return DEFAULT_MAX_TOKENS

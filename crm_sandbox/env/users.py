@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any, Union
 from litellm import completion
+from crm_sandbox.agents.utils import CUSTOM_SERVER_MODELS_MAP
 
 class LLMUserSimulationEnv(object):
     def __init__(self, model: str, provider: str) -> None:
@@ -8,12 +9,30 @@ class LLMUserSimulationEnv(object):
         self.model = model
         self.provider = provider
         self.total_cost = 0.0
+        
+        # Handle custom server models (similar to ChatAgent)
+        if provider == "custom_server" and self.model in CUSTOM_SERVER_MODELS_MAP:
+            self.custom_server_config = CUSTOM_SERVER_MODELS_MAP[self.model]
+            self.model = self.custom_server_config["name"]
+        
         self.reset()
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
-        res = completion(
-            model=self.model, custom_llm_provider=self.provider, messages=messages
-        )
+        if self.provider == "custom_server" and hasattr(self, 'custom_server_config'):
+            # For LiteLLM server, keep the openai/ prefix and use api_base
+            res = completion(
+                model=self.model,
+                messages=messages,
+                api_base=self.custom_server_config["base_url"],
+                api_key=self.custom_server_config["api_key"]
+            )
+        else:
+            res = completion(
+                model=self.model,
+                custom_llm_provider=self.provider,
+                messages=messages
+            )
+        
         message = res.choices[0].message
         self.messages.append(message.model_dump())
         self.total_cost = res._hidden_params["response_cost"]

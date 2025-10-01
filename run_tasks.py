@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import json, os
 from crm_sandbox.agents import ChatAgent, ToolCallAgent
-from crm_sandbox.agents.utils import BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP
+from crm_sandbox.agents.utils import BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP
 from crm_sandbox.data.assets import TASKS_ORIGINAL, SCHEMA_ORIGINAL, TASKS_B2B, TASKS_B2B_INTERACTIVE, TASKS_B2C, TASKS_B2C_INTERACTIVE, B2B_SCHEMA, B2C_SCHEMA, EXTERNAL_FACING_TASKS
 from crm_sandbox.env.env import ChatEnv, ToolEnv, InteractiveChatEnv
 from crm_sandbox.env import TOOLS, TOOLS_FULL
@@ -66,6 +66,10 @@ def run():
             if agent_model in VERTEX_MODELS_MAP:
                 return agent_model  # Use the same Vertex AI model for evaluation
             return "gemini-2.0-flash-001"  # Default Vertex AI model
+        elif provider == "custom_server":
+            if agent_model in CUSTOM_SERVER_MODELS_MAP:
+                return agent_model  # Use the same custom server model for evaluation
+            return "anthropic-claude-3.7-sonnet-aws"  # Default custom server model
         else:
             # Fallback to the agent model itself
             return agent_model
@@ -197,7 +201,8 @@ if __name__ == "__main__":
             *BEDROCK_MODELS_MAP.keys(),
             *ANTHROPIC_MODELS_MAP.keys(),
             *TOGETHER_MODELS_MAP.keys(),
-            *VERTEX_MODELS_MAP.keys()
+            *VERTEX_MODELS_MAP.keys(),
+            *CUSTOM_SERVER_MODELS_MAP.keys()
         ]
     )
     parser.add_argument(
@@ -216,7 +221,7 @@ if __name__ == "__main__":
         "--llm_provider",
         type=str,
         default="bedrock",
-        choices=["bedrock", "together_ai", "openai", "vertex_ai", "anthropic"]
+        choices=["bedrock", "together_ai", "openai", "vertex_ai", "anthropic", "custom_server"]
     )
     parser.add_argument(
         "--task_category",

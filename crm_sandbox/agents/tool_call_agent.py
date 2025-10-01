@@ -8,7 +8,7 @@ import re, traceback, ast, time
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from crm_sandbox.agents.prompts import SCHEMA_STRING, SYSTEM_METADATA, NATIVE_FC_PROMPT, CUSTOM_FC_PROMPT, FC_RULE_STRING, FC_FLEX_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, fc_prompt_builder
+from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, fc_prompt_builder
 
 
 from dotenv import load_dotenv
@@ -25,6 +25,35 @@ def chat_completion_request(
     max_tokens=3500,
     additional_drop_params=[]
 ):
+    # Handle custom server models with custom API base and key
+    if model.startswith("openai/") and any(model.endswith(custom_model) for custom_model in CUSTOM_SERVER_MODELS_MAP.keys()):
+        # Extract the actual model name from the openai/ prefix
+        actual_model = model.replace("openai/", "")
+        if actual_model in CUSTOM_SERVER_MODELS_MAP:
+            custom_config = CUSTOM_SERVER_MODELS_MAP[actual_model]
+            print(f"[litellm] Using custom server for model: {model}")
+            
+            # Models that require higher token limits
+            high_token_models = [
+                "o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", 
+                "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", 
+                "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"
+            ]
+            max_tokens_value = 50000 if model in high_token_models else 3500
+            
+            res = litellm.completion(
+                messages=messages,
+                model=model,
+                temperature=0.0,
+                top_p=1.0,
+                max_tokens=max_tokens_value,
+                tools=tools,
+                api_base=custom_config["base_url"],
+                api_key=custom_config["api_key"],
+                additional_drop_params=additional_drop_params
+            )
+            return res
+    
     # If using Bedrock and bearer token, set env vars for litellm
     if (model.startswith("meta.llama3") or model.startswith("us.meta.llama")) and os.environ.get("AWS_BEARER_TOKEN_BEDROCK") and os.environ.get("AWS_REGION_NAME"):
         model = f"bedrock/{model}"
@@ -41,12 +70,21 @@ def chat_completion_request(
         
         print("AWS_REGION_NAME:", region)
         print("AWS credentials configured for LiteLLM")
+    
+    # Models that require higher token limits
+    high_token_models = [
+        "o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", 
+        "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", 
+        "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"
+    ]
+    max_tokens_value = 50000 if model in high_token_models else 3500
+    
     res = litellm.completion(
         messages=messages,
         model=model,
         temperature=0.0,
         top_p=1.0,
-        max_tokens=3500 if model not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000,
+        max_tokens=max_tokens_value,
         tools=tools if "llama" not in model else None, ## llama tool_calling through prompt
         additional_drop_params=["temperature", "top_p"] if model in ["o1-mini", "o1-preview", "o1-2024-12-17"] else []
     )
@@ -81,6 +119,8 @@ class ToolCallAgent:
             self.model = VERTEX_MODELS_MAP[self.model]["name"]
         elif provider == "anthropic" and self.model in ANTHROPIC_MODELS_MAP:
             self.model = ANTHROPIC_MODELS_MAP[self.model]["name"]
+        elif provider == "custom_server" and self.model in CUSTOM_SERVER_MODELS_MAP:
+            self.model = CUSTOM_SERVER_MODELS_MAP[self.model]["name"]
         else:
             assert self.model in ["o1-mini", "o1-2024-12-17", "o1-preview", "gpt-4o-2024-08-06", "gpt-3.5-turbo-0125"], "Invalid model name"
             

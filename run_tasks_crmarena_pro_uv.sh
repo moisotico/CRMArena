@@ -5,7 +5,10 @@ AGENT_MODELS=(
     # "o1-2024-12-17"
     # "gpt-4o-2024-11-20"
     # "gpt-4o-mini-2024-07-18"
-    "us.meta.llama3-2-3b-instruct-v1:0"  # Bedrock Llama model for testing
+    # "us.meta.llama3-2-3b-instruct-v1:0"  # Bedrock Llama model for testing
+    # "us.meta.llama3-70b-instruct-v1:0"  # Bedrock Llama model for testing
+    # "us.meta.llama4-maverick-17b-instruct-v1:0"  # Bedrock Llama model for testing
+    "deepseekr1-aws"  # Custom server DeepSeek R1 model
     # "claude-3-5-sonnet-20240620" # Anthropic model for testing
     # "llama3.1-405b-instruct"
     # "llama3.1-70b-instruct"
@@ -17,30 +20,30 @@ AGENT_MODELS=(
 )
 
 TASKS=(
-    "policy_violation_identification"
-    "monthly_trend_analysis"
-    "named_entity_disambiguation"
-    "best_region_identification"
-    "handle_time"
+    # "policy_violation_identification"
+    # "monthly_trend_analysis"
+    # "named_entity_disambiguation"
+    # "best_region_identification"
+    # "handle_time"
     "knowledge_qa"
-    "transfer_count"
-    "case_routing"
-    "top_issue_identification"
+    # "transfer_count"
+    # "case_routing"
+    # "top_issue_identification"
 
-    "sales_amount_understanding"
-    "lead_routing"
-    "sales_cycle_understanding"
-    "conversion_rate_comprehension"
-    "wrong_stage_rectification"
-    "sales_insight_mining"
-    "quote_approval"
-    "lead_qualification"
-    "activity_priority"
-    "invalid_config"
+    # "sales_amount_understanding"
+    # "lead_routing"
+    # "sales_cycle_understanding"
+    # "conversion_rate_comprehension"
+    # "wrong_stage_rectification"
+    # "sales_insight_mining"
+    # "quote_approval"
+    # "lead_qualification"
+    # "activity_priority"
+    # "invalid_config"
     
-    "private_customer_information"
-    "internal_operation_data"
-    "confidential_company_knowledge"
+    # "private_customer_information"
+    # "internal_operation_data"
+    # "confidential_company_knowledge"
 
 )
 
@@ -63,7 +66,22 @@ for AGENT_MODEL in "${AGENT_MODELS[@]}"; do
     for TASK_CATEGORY in "${TASKS[@]}"; do
         for AGENT_STRATEGY in "${STRATEGIES[@]}"; do
 
-            if [[ "$AGENT_MODEL" == gpt* ]] || [[ "$AGENT_MODEL" == o1* ]]; then
+            # Custom server models list
+            CUSTOM_SERVER_MODELS=(
+                "anthropic-claude-4.0-opus-aws"
+                "deepseekr1-aws"
+                "anthropic-claude-3.7-sonnet-aws"
+                "anthropic-claude-4.1-opus-aws"
+                "llama3.3-70b-AWS"
+                "llama3.2-90b-AWS"
+                "llama3.2-1b-AWS"
+                "llama3.1-70b-AWS"
+            )
+
+            # Check if AGENT_MODEL is in CUSTOM_SERVER_MODELS list
+            if [[ " ${CUSTOM_SERVER_MODELS[@]} " =~ " ${AGENT_MODEL} " ]]; then
+                LITELLM_PROVIDER=custom_server
+            elif [[ "$AGENT_MODEL" == gpt* ]] || [[ "$AGENT_MODEL" == o1* ]]; then
                 LITELLM_PROVIDER=openai
             elif [[ "$AGENT_MODEL" == claude* ]]; then
                 LITELLM_PROVIDER=anthropic
