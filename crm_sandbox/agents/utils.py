@@ -13,6 +13,11 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Models known to have issues with max_tokens in LiteLLM, requiring special handling
+problematic_models = ["gpt-oss-120b", "gpt-oss-20b", "qwen3-32b", "qwen.qwen3-32b-v1:0", "qwen.qwen3-32b-v1_0"]
+reasoning_models = ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"]
+
+
 ## MODEL MAP ##
 BEDROCK_MODELS_MAP = {
     # AWS Bedrock (all in us-west-2)
@@ -306,59 +311,72 @@ def get_all_metrics(prediction, ground_truth):
 # Fallback values when model specs not found
 DEFAULT_MAX_TOKENS = 2000
 
-def get_dynamic_max_tokens(original_model_name: str) -> int:
+def estimate_input_tokens(messages) -> int:
+    """Simple token estimation for messages"""
+    try:
+        text = ""
+        for msg in messages:
+            content = msg.get('content', '')
+            if isinstance(content, str):
+                text += content
+            elif isinstance(content, list):
+                for part in content:
+                    if isinstance(part, dict) and part.get('type') == 'text':
+                        text += part.get('text', '')
+        return len(text) // 3  # Conservative estimate: ~3 chars per token
+    except:
+        return 0
+
+
+def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
+    """Get max_tokens that won't exceed context window"""
+    
+    # Model limits: (context_window, max_output_tokens)
+    MODEL_LIMITS = {
+        "gpt-oss-120b": (32768, 8192),
+        "gpt-oss-20b": (32768, 8192),
+        "qwen.qwen3-32b-v1:0": (32768, 2000),
+        "qwen.qwen3-32b-v1_0": (32768, 2000),
+        "qwen3-32b": (32768, 2000),
+        "o1-mini": (128000, 65536),
+        "o1-preview": (128000, 32768),
+        "o1-2024-12-17": (200000, 32768),
+        "deepseek-r1": (65536, 8192),
+        "deepseekr1-aws": (65536, 8192),
+        "o3-mini-2025-01-31": (200000, 65536),
+        "us.anthropic.claude-opus-4-20250514-v1:0": (200000, 4096),
+        "claude-opus-4-20250514": (200000, 4096),
+    }
+    
+    context_window, max_output = MODEL_LIMITS.get(model_name, (128000, 2000))
+    available_tokens = max(1, context_window - input_tokens - 100)  # 100 token safety margin
+    return min(max_output, available_tokens)
+
+
+def get_dynamic_max_tokens(original_model_name: str, input_tokens: int = 0) -> int:
     """
     Get appropriate max_tokens value for a model using LiteLLM specifications
     
     Args:
         original_model_name: The original model name (e.g., 'gpt-oss-120b', 'deepseek-r1')
+        input_tokens: Number of input tokens to account for context window limits
         
     Returns:
-        int: Appropriate max_tokens value
+        int: Appropriate max_tokens value that doesn't exceed context window
     """
-    # Special handling for certain models that need higher limits
-    special_models = {
-        "o1-mini": 65536,
-        "o1-preview": 32768,
-        "o1-2024-12-17": 32768,
-        "deepseek-r1": 8192,
-        "deepseekr1-aws": 8192,  # Custom server deepseek-r1 model
-        "o3-mini-2025-01-31": 65536,
-        "gemini-2.5-flash-preview-04-17": 8192,
-        "gemini-2.5-flash-preview-04-17-thinking-4096": 8192,
-        "gemini-2.5-pro-preview-03-25": 8192
-    }
     
-    # Check if original model name has special handling
-    if original_model_name in special_models:
-        logger.debug(f"Using special handling for {original_model_name}: {special_models[original_model_name]}")
-        return special_models[original_model_name]
+    # First try our safe calculation for known problematic models
+    if original_model_name in problematic_models:
+        safe_tokens = get_safe_max_tokens(original_model_name, input_tokens)
+        logger.debug(f"Safe max_tokens for {original_model_name}: {safe_tokens} (input: {input_tokens})")
+        return safe_tokens
     
-    # Map original model names to LiteLLM names for lookup
-    model_name_mapping = {
-        "gpt-oss-20b": "openai.gpt-oss-20b-1:0",
-        "gpt-oss-120b": "openai.gpt-oss-120b-1:0",
-        "us.deepseek.r1-v1:0": "us.deepseek.r1-v1:0",
-        "deepseekr1-aws": "openai/deepseekr1-aws"  # Custom server mapping
-    }
+    # For other models, try our safe calculation or fallback
+    safe_tokens = get_safe_max_tokens(original_model_name, input_tokens)
     
-    # Get the LiteLLM model name
-    litellm_model_name = model_name_mapping.get(original_model_name, original_model_name)
+    # Special case for reasoning models that need higher limits
+    if original_model_name in reasoning_models:
+        safe_tokens = max(safe_tokens, 8192)  # Ensure minimum for reasoning
     
-    # Try to get from LiteLLM model cost data
-    if litellm and hasattr(litellm, 'model_cost') and litellm_model_name in litellm.model_cost:
-        model_info = litellm.model_cost[litellm_model_name]
-        
-        # Prefer max_output_tokens, fallback to max_tokens
-        if 'max_output_tokens' in model_info:
-            max_tokens = model_info['max_output_tokens']
-            logger.debug(f"Found max_output_tokens for {litellm_model_name}: {max_tokens}")
-            return max_tokens
-        elif 'max_tokens' in model_info:
-            max_tokens = model_info['max_tokens']
-            logger.debug(f"Found max_tokens for {litellm_model_name}: {max_tokens}")
-            return max_tokens
-    
-    # Log that we're using fallback
-    logger.info(f"No model cost data found for {litellm_model_name} (original: {original_model_name}), using default: {DEFAULT_MAX_TOKENS}")
-    return DEFAULT_MAX_TOKENS
+    logger.debug(f"Using max_tokens for {original_model_name}: {safe_tokens}")
+    return safe_tokens

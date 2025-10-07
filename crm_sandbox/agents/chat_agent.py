@@ -5,7 +5,7 @@ litellm.set_verbose = False
 from typing import Dict, List
 import time, traceback
 from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, get_dynamic_max_tokens
+from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, get_dynamic_max_tokens, estimate_input_tokens
 import together
 import logging
 
@@ -92,14 +92,21 @@ class ChatAgent:
         )
         return template
     
+    def _safe_add_message(self, role, content, fallback_content="(empty message)"):
+        """Safely add a message, ensuring content is never blank to prevent Bedrock errors."""
+        if not content or (isinstance(content, str) and not content.strip()):
+            logger.warning(f"Prevented blank content for role '{role}', using fallback: {fallback_content}")
+            content = fallback_content
+        self.messages.append({"role": role, "content": content})
+
     def reset(self, args):
         if args["metadata"]["required"]:
             self.sys_prompt += SYSTEM_METADATA.format(system_metadata=args["metadata"]["required"], system="Salesforce instance") # add task/query-specific metadata here
         if self.eval_mode == "aided" and "optional" in args["metadata"]:
             self.sys_prompt += "\n" + args["metadata"]["optional"]
-        if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17"]:
+        if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gpt-oss-20b"]:
             self.messages = [{"role": "system", "content": self.sys_prompt.strip()}]
-            self.messages.append({"role": "user", "content": args["query"].strip()})
+            self._safe_add_message("user", args["query"].strip())
         
         else:
             # No system role for o1-mini and o1-preview
@@ -141,14 +148,10 @@ class ChatAgent:
             else:
                 thinking = None
             
-            # Calculate dynamic max_tokens using LiteLLM model specifications
-            try:
-                max_tokens = get_dynamic_max_tokens(self.original_model_name)
-                logger.debug(f"Using dynamic max_tokens for {self.original_model_name}: {max_tokens}")
-            except Exception as e:
-                # Fallback to original logic if there's any issue
-                logger.warning(f"Failed to get dynamic max_tokens for {self.original_model_name}, using fallback: {e}")
-                max_tokens = 2000 if self.original_model_name not in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31", "gemini-2.5-flash-preview-04-17", "gemini-2.5-flash-preview-04-17-thinking-4096", "gemini-2.5-pro-preview-03-25"] else 50000
+            # Calculate max_tokens with context window safety
+            input_tokens = estimate_input_tokens(self.messages)
+            max_tokens = get_dynamic_max_tokens(self.original_model_name, input_tokens)
+
 
             # Base completion arguments (keep existing logic intact)
             completion_kwargs = {
@@ -198,7 +201,7 @@ class ChatAgent:
             self.usage["cost"].append(res._hidden_params["response_cost"])
             action = self.message_action_parser(message, self.model)
             print("User Turn:", env.current_user_turn, "Agent Turn:", current_agent_turn, "Agent:", message["content"].strip())
-            self.messages.append({"role": "assistant", "content": message["content"].strip()})
+            self._safe_add_message("assistant", message["content"].strip())
             if action is None:
                 self.info["end_reason"] = {
                     "source": "agent",
@@ -207,9 +210,9 @@ class ChatAgent:
                 }
                 info["end_reason"] = self.info["end_reason"]
                 if self.strategy == "react":
-                    self.messages.append({"role": "user", "content": REACT_RULE_STRING})
+                    self._safe_add_message("user", REACT_RULE_STRING)
                 elif self.strategy == "act":
-                    self.messages.append({"role": "user", "content": ACT_RULE_STRING})
+                    self._safe_add_message("user", ACT_RULE_STRING)
                 continue
             obs, reward, done, info = env.step(action)
             
@@ -223,9 +226,12 @@ class ChatAgent:
             if done:
                 break
             elif action["name"] == "execute": # execution results from
-                self.messages.append({"role": "user", "content": f"Salesforce instance output: {obs}"})
+                safe_obs = obs if obs else "(empty)"
+                obs_content = f"Salesforce instance output: {safe_obs}"
+                self._safe_add_message("user", obs_content)
             elif action["name"] == "respond": # respond to simulated user
-                self.messages.append({"role": "user", "content": obs})
+                safe_obs = obs if obs and obs.strip() else "(empty response)"
+                self._safe_add_message("user", safe_obs)
         
         # Here when either max_turns is reached or submitted
         if not done: 
