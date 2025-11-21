@@ -14,8 +14,20 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Models known to have issues with max_tokens in LiteLLM, requiring special handling
-problematic_models = ["gpt-oss-120b", "gpt-oss-20b", "qwen3-32b", "qwen.qwen3-32b-v1:0", "qwen.qwen3-32b-v1_0"]
-reasoning_models = ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"]
+problematic_models = [
+    "gpt-oss-120b",
+    "gpt-oss-20b",
+    "qwen3-32b",
+    "qwen.qwen3-32b-v1:0",
+    "qwen.qwen3-32b-v1_0",
+]
+reasoning_models = [
+    "o1-mini",
+    "o1-preview",
+    "o1-2024-12-17",
+    "deepseek-r1",
+    "o3-mini-2025-01-31",
+]
 
 
 ## MODEL MAP ##
@@ -53,7 +65,7 @@ BEDROCK_MODELS_MAP = {
         "region": "us-west-2",
     },
     "gpt-oss-120b": {
-        "provider": "bedrock", 
+        "provider": "bedrock",
         "name": "openai.gpt-oss-120b-1:0",
         "region": "us-west-2",
     },
@@ -62,126 +74,103 @@ BEDROCK_MODELS_MAP = {
 # Custom LiteLLM Server Models Map (for neuroserver.georgezlin.com)
 CUSTOM_SERVER_MODELS_MAP = {
     "anthropic-claude-3.7-sonnet-aws": {
-        "provider": "openai", 
+        "provider": "openai",
         "name": "openai/anthropic-claude-3.7-sonnet-aws",
         "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "anthropic-claude-4.0-opus-aws": {
         "provider": "openai",
-        "name": "openai/anthropic-claude-4.0-opus-aws", 
+        "name": "openai/anthropic-claude-4.0-opus-aws",
         "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "anthropic-claude-4.1-opus-aws": {
         "provider": "openai",
-        "name": "openai/anthropic-claude-4.1-opus-aws", 
+        "name": "openai/anthropic-claude-4.1-opus-aws",
         "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "deepseekr1-aws": {
         "provider": "openai",
-        "name": "openai/deepseekr1-aws", 
+        "name": "openai/deepseekr1-aws",
         "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "llama3.1-70b-AWS": {
         "provider": "openai",
         "name": "openai/llama3.1-70b-AWS",
-        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "llama3.2-1b-AWS": {
         "provider": "openai",
         "name": "openai/llama3.2-1b-AWS",
-        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "llama3.2-90b-AWS": {
         "provider": "openai",
         "name": "openai/llama3.2-90b-AWS",
-        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
     },
     "llama3.3-70b-AWS": {
         "provider": "openai",
         "name": "openai/llama3.3-70b-AWS",
-        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"), 
+        "base_url": os.getenv("LITELLM_API_BASE", "https://neuroserver.georgezlin.com"),
         "api_key": os.getenv("NEUROSERVER_API_KEY", ""),
-    }
+    },
 }
 
 TOGETHER_MODELS_MAP = {
-    "llama3.1-405b-instruct" : {
+    "llama3.1-405b-instruct": {
         "name": "together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
     },
-    "mixtral_8x22b_instruct" : {
+    "mixtral_8x22b_instruct": {
         "name": "together_ai/mistralai/Mixtral-8x22B-Instruct-v0.1"
     },
-    "llama3.1-8b-instruct" : {
+    "llama3.1-8b-instruct": {
         "name": "together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
     },
-    "llama3.1-70b-instruct" : {
+    "llama3.1-70b-instruct": {
         "name": "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"
     },
-    "llama4-maverick-17b-128e-instruct" : {
+    "llama4-maverick-17b-128e-instruct": {
         "name": "together_ai/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
     },
-    "deepseek-r1" : {
-        "name": "together_ai/deepseek-ai/DeepSeek-R1"
-    }
+    "deepseek-r1": {"name": "together_ai/deepseek-ai/DeepSeek-R1"},
 }
 
 VERTEX_MODELS_MAP = {
-  "llama3.1-405b-instruct": {
-    "name": "vertex_ai/meta/llama3-405b-instruct-maas"
-  },
-  "llama3.1-70b-instruct" : {
-        "name": "vertex_ai/meta/llama3-70b-instruct-maas"
-    },
-  "llama3.1-8b-instruct" : {
-        "name": "vertex_ai/meta/llama3-8b-instruct-maas"
-    },
-  "llama4-maverick-17b-128e-instruct": {
+    "llama3.1-405b-instruct": {"name": "vertex_ai/meta/llama3-405b-instruct-maas"},
+    "llama3.1-70b-instruct": {"name": "vertex_ai/meta/llama3-70b-instruct-maas"},
+    "llama3.1-8b-instruct": {"name": "vertex_ai/meta/llama3-8b-instruct-maas"},
+    "llama4-maverick-17b-128e-instruct": {
         "name": "vertex_ai/meta/llama-4-maverick-17b-128e-instruct-maas"
-  },
-  "gemini-2.5-flash-preview-04-17": {
+    },
+    "gemini-2.5-flash-preview-04-17": {
         "name": "vertex_ai/gemini-2.5-flash-preview-04-17"
-  },
-  "gemini-2.5-flash-preview-04-17-thinking-4096":{
+    },
+    "gemini-2.5-flash-preview-04-17-thinking-4096": {
         "name": "vertex_ai/gemini-2.5-flash-preview-04-17"
-  },
-  "gemini-2.5-pro-preview-03-25": {
-        "name": "vertex_ai/gemini-2.5-pro-preview-03-25"
-  },
-  "gemini-2.0-flash-001":{
-        "name": "vertex_ai/gemini-2.0-flash-001"
-  }
+    },
+    "gemini-2.5-pro-preview-03-25": {"name": "vertex_ai/gemini-2.5-pro-preview-03-25"},
+    "gemini-2.0-flash-001": {"name": "vertex_ai/gemini-2.0-flash-001"},
 }
 
 ANTHROPIC_MODELS_MAP = {
-    "claude-3-5-sonnet-20240620": {
-        "name": "claude-3-5-sonnet-20240620"
-    },
-    "claude-3-opus-20240229": {
-        "name": "claude-3-opus-20240229"
-    },
-    "claude-3-haiku-20240307": {
-        "name": "claude-3-haiku-20240307"
-    },
-    "claude-3-sonnet-20240229": {
-        "name": "claude-3-sonnet-20240229"
-    },
-    "claude-sonnet-4-20250514": {
-        "name": "claude-sonnet-4-20250514"
-    },
-    "claude-3-7-sonnet-20240229": {
-        "name": "claude-3-7-sonnet-20240229"
-    },
-    "claude-3-5-haiku-20241022": {
-        "name": "claude-3-5-haiku-20241022"
-    }
+    "claude-3-5-sonnet-20240620": {"name": "claude-3-5-sonnet-20240620"},
+    "claude-3-opus-20240229": {"name": "claude-3-opus-20240229"},
+    "claude-3-haiku-20240307": {"name": "claude-3-haiku-20240307"},
+    "claude-3-sonnet-20240229": {"name": "claude-3-sonnet-20240229"},
+    "claude-sonnet-4-20250514": {"name": "claude-sonnet-4-20250514"},
+    "claude-sonnet-4-5-20250929": {"name": "claude-sonnet-4-5-20250929"},
+    "claude-3-7-sonnet-20240229": {"name": "claude-3-7-sonnet-20240229"},
+    "claude-3-5-haiku-20241022": {"name": "claude-3-5-haiku-20241022"},
+    "claude-haiku-4-5-20251001": {"name": "claude-haiku-4-5-20251001"},
 }
+
 
 ### Utils ###
 def parse_wrapped_response(reg_exp, text_phrase):
@@ -190,34 +179,37 @@ def parse_wrapped_response(reg_exp, text_phrase):
         return match.group(1)
     return ""
 
+
 def fc_prompt_builder(tools):
     """
     tools: tool_info [tool.__info__ for tool in tools]
     """
-    
+
     output = []
     for tool in tools:
-        tool_name = tool['function']['name']
-        tool_description = tool['function']['description']
+        tool_name = tool["function"]["name"]
+        tool_description = tool["function"]["description"]
 
         tool_string = f"> Tool Name: {tool_name}\n"
         tool_string += f"Tool Description: {tool_description}\n"
         tool_string += "Tool Args:\n"
 
-        parameters = tool['function']['parameters']['properties']
-        required_params = tool['function']['parameters'].get('required', [])
+        parameters = tool["function"]["parameters"]["properties"]
+        required_params = tool["function"]["parameters"].get("required", [])
 
         for param, details in parameters.items():
-            param_type = details['type']
+            param_type = details["type"]
             required = param in required_params
             required_str = ", required" if required else ""
-            description = details.get('description', '')
+            description = details.get("description", "")
 
-            if param_type == 'array':
-                item_type = details.get('items', {}).get('type', '')
+            if param_type == "array":
+                item_type = details.get("items", {}).get("type", "")
                 # param_type += f", where each item should be {item_type}" if item_type else ""
 
-            tool_string += f"  - {param} ({param_type}{required_str}): {description.strip()}\n"
+            tool_string += (
+                f"  - {param} ({param_type}{required_str}): {description.strip()}\n"
+            )
 
         output.append(tool_string.strip())
 
@@ -231,31 +223,34 @@ def fc_prompt_builder(tools):
     """
     return output
 
-    
+
 ### Metrics ###
 bleu_scorer = BLEU()
 rouge_scorer = Rouge()
+
 
 def normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
 
     def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
+        return re.sub(r"\b(a|an|the)\b", " ", text)
 
     def white_space_fix(text):
-        return ' '.join(text.split())
+        return " ".join(text.split())
 
     def handle_punc(text):
-        exclude = set(string.punctuation + "".join([u"‘", u"’", u"´", u"`"]))
-        return ''.join(ch if ch not in exclude else ' ' for ch in text)
+        exclude = set(string.punctuation + "".join(["‘", "’", "´", "`"]))
+        return "".join(ch if ch not in exclude else " " for ch in text)
 
     def lower(text):
         return text.lower()
 
     def replace_underscore(text):
-        return text.replace('_', ' ')
+        return text.replace("_", " ")
 
-    return white_space_fix(remove_articles(handle_punc(lower(replace_underscore(s))))).strip()
+    return white_space_fix(
+        remove_articles(handle_punc(lower(replace_underscore(s))))
+    ).strip()
 
 
 def exact_match_score(prediction, ground_truth):
@@ -282,6 +277,7 @@ def bleu_score(prediction, ground_truth):
     )
     return score.score / 100
 
+
 def rouge_score(prediction, ground_truth):
     score = rouge_scorer.get_scores(
         hyps=normalize_answer(prediction),
@@ -292,7 +288,8 @@ def rouge_score(prediction, ground_truth):
         "rouge-2": score[0]["rouge-2"]["f"],
         "rouge-l": score[0]["rouge-l"]["f"],
     }
-    
+
+
 def get_all_metrics(prediction, ground_truth):
     em = exact_match_score(prediction, ground_truth)
     f1 = f1_score(prediction, ground_truth)
@@ -311,18 +308,19 @@ def get_all_metrics(prediction, ground_truth):
 # Fallback values when model specs not found
 DEFAULT_MAX_TOKENS = 2000
 
+
 def estimate_input_tokens(messages) -> int:
     """Simple token estimation for messages"""
     try:
         text = ""
         for msg in messages:
-            content = msg.get('content', '')
+            content = msg.get("content", "")
             if isinstance(content, str):
                 text += content
             elif isinstance(content, list):
                 for part in content:
-                    if isinstance(part, dict) and part.get('type') == 'text':
-                        text += part.get('text', '')
+                    if isinstance(part, dict) and part.get("type") == "text":
+                        text += part.get("text", "")
         return len(text) // 3  # Conservative estimate: ~3 chars per token
     except:
         return 0
@@ -330,7 +328,7 @@ def estimate_input_tokens(messages) -> int:
 
 def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
     """Get max_tokens that won't exceed context window"""
-    
+
     # Model limits: (context_window, max_output_tokens)
     MODEL_LIMITS = {
         "gpt-oss-120b": (32768, 8192),
@@ -347,36 +345,40 @@ def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
         "us.anthropic.claude-opus-4-20250514-v1:0": (200000, 4096),
         "claude-opus-4-20250514": (200000, 4096),
     }
-    
+
     context_window, max_output = MODEL_LIMITS.get(model_name, (128000, 2000))
-    available_tokens = max(1, context_window - input_tokens - 100)  # 100 token safety margin
+    available_tokens = max(
+        1, context_window - input_tokens - 100
+    )  # 100 token safety margin
     return min(max_output, available_tokens)
 
 
 def get_dynamic_max_tokens(original_model_name: str, input_tokens: int = 0) -> int:
     """
     Get appropriate max_tokens value for a model using LiteLLM specifications
-    
+
     Args:
         original_model_name: The original model name (e.g., 'gpt-oss-120b', 'deepseek-r1')
         input_tokens: Number of input tokens to account for context window limits
-        
+
     Returns:
         int: Appropriate max_tokens value that doesn't exceed context window
     """
-    
+
     # First try our safe calculation for known problematic models
     if original_model_name in problematic_models:
         safe_tokens = get_safe_max_tokens(original_model_name, input_tokens)
-        logger.debug(f"Safe max_tokens for {original_model_name}: {safe_tokens} (input: {input_tokens})")
+        logger.debug(
+            f"Safe max_tokens for {original_model_name}: {safe_tokens} (input: {input_tokens})"
+        )
         return safe_tokens
-    
+
     # For other models, try our safe calculation or fallback
     safe_tokens = get_safe_max_tokens(original_model_name, input_tokens)
-    
+
     # Special case for reasoning models that need higher limits
     if original_model_name in reasoning_models:
         safe_tokens = max(safe_tokens, 8192)  # Ensure minimum for reasoning
-    
+
     logger.debug(f"Using max_tokens for {original_model_name}: {safe_tokens}")
     return safe_tokens

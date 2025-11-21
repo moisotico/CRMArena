@@ -26,8 +26,8 @@ class SalesforceConnector:
         
     def preprocess_query(self, query: str) -> str:
         # remove tags if present
-        pattern1 = f'```(?:sql|SQL|soql|SOQL)?([\S\s]+?)```'
-        pattern2 = f'```([\S\s]+?)```'
+        pattern1 = r'```(?:sql|SQL|soql|SOQL)?([\S\s]+?)```'
+        pattern2 = r'```([\S\s]+?)```'
         matches = re.findall(pattern1, query, re.DOTALL) + re.findall(pattern2, query, re.DOTALL)
         if len(matches) > 0:
             query = " ".join(matches[0].split())

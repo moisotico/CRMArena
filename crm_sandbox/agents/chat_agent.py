@@ -69,6 +69,10 @@ class ChatAgent:
             # Handle custom LiteLLM server models
             self.custom_server_config = CUSTOM_SERVER_MODELS_MAP[self.model]
             self.model = self.custom_server_config["name"]
+        elif provider == "litellm_server":
+            # Handle LiteLLM server - need openai/ prefix for provider detection
+            if not self.model.startswith("openai/"):
+                self.model = f"openai/{self.model}"
         else:
             pass
         if self.model in ["o1-mini", "o1-preview", "o1-2024-12-17", "o3-mini-2025-01-31"]:
@@ -151,27 +155,42 @@ class ChatAgent:
             # Calculate max_tokens with context window safety
             input_tokens = estimate_input_tokens(self.messages)
             max_tokens = get_dynamic_max_tokens(self.original_model_name, input_tokens)
+            
+            # Debug logging for max_tokens calculation
+            logger.info(f"DEBUG: max_tokens calculation: original_model_name={self.original_model_name}, input_tokens={input_tokens}, calculated_max_tokens={max_tokens}")
+            
+            # Safety check for negative max_tokens
+            if max_tokens <= 0:
+                logger.error(f"ERROR: Calculated negative max_tokens={max_tokens}, using fallback=1")
+                max_tokens = 1
 
 
             # Base completion arguments (keep existing logic intact)
+            # Models that don't allow both temperature and top_p
+            models_without_top_p = ["o3-mini-2025-01-31"]
+            # Anthropic models don't allow both temperature and top_p
+            if self.provider == "anthropic" or "anthropic/" in self.model:
+                models_without_top_p.append(self.model)
+            
             completion_kwargs = {
                 "messages": self.messages,
                 "model": self.model,
                 "temperature": temperature,
                 "max_tokens": max_tokens,
-                "top_p": 1.0 if self.model not in ["o3-mini-2025-01-31"] else None,
+                "top_p": 1.0 if self.model not in models_without_top_p else None,
                 "thinking": thinking,
                 "additional_drop_params": ["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
             }
             
             # Add custom server parameters only if needed
-            if self.provider == "custom_server" and hasattr(self, 'custom_server_config'):
+            if self.provider in ["custom_server", "litellm_server"] and hasattr(self, 'custom_server_config'):
                 completion_kwargs["base_url"] = self.custom_server_config["base_url"]
                 completion_kwargs["api_key"] = self.custom_server_config["api_key"]
             
             # Retry with exponential backoff for custom server
-            max_retries = 3 if self.provider == "custom_server" else 1
+            max_retries = 3 if self.provider in ["custom_server", "litellm_server"] else 1
             logger.info(f"DEBUG: About to call LiteLLM with {max_retries} max retries, provider: {self.provider}")
+            logger.info(f"DEBUG: LiteLLM call kwargs: model={completion_kwargs['model']}, max_tokens={completion_kwargs['max_tokens']}, temperature={completion_kwargs.get('temperature', 'None')}")
             
             for retry in range(max_retries):
                 try:
@@ -250,8 +269,10 @@ class ChatAgent:
         return self.messages
 
     @staticmethod
-    def message_action_parser(message: str, model_name: str) -> Dict[str, str]:
+    def message_action_parser(message: Dict[str, str], model_name: str) -> Dict[str, str]:
         action = None
+        if not message or not message.get("content"):
+            return None
         content = message["content"].strip()
         # if model_name "deepseek-r1":
         #     content = content.split("</think>")[1]
