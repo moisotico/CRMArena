@@ -5,7 +5,17 @@ litellm.set_verbose = False
 from typing import Dict, List
 import time, traceback
 from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, get_dynamic_max_tokens, estimate_input_tokens
+from crm_sandbox.agents.utils import (
+    parse_wrapped_response,
+    BEDROCK_MODELS_MAP,
+    TOGETHER_MODELS_MAP,
+    VERTEX_MODELS_MAP,
+    ANTHROPIC_MODELS_MAP,
+    CUSTOM_SERVER_MODELS_MAP,
+    get_dynamic_max_tokens,
+    estimate_input_tokens,
+    get_openrouter_extra_body,
+)
 import together
 import logging
 
@@ -181,6 +191,9 @@ class ChatAgent:
                 "thinking": thinking,
                 "additional_drop_params": ["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
             }
+            extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider)
+            if extra_body:
+                completion_kwargs["extra_body"] = extra_body
             
             # Add custom server parameters only if needed
             if self.provider in ["custom_server", "litellm_server"] and hasattr(self, 'custom_server_config'):

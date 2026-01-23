@@ -30,6 +30,23 @@ reasoning_models = [
 ]
 
 
+def get_openrouter_extra_body(model: str | None = None, provider: str | None = None) -> dict | None:
+    provider_only = os.getenv("OPENROUTER_PROVIDER_ONLY")
+    if not provider_only:
+        return None
+    if provider and provider != "openrouter" and (not model or not model.startswith("openrouter/")):
+        return None
+    providers = [p.strip() for p in provider_only.split(",") if p.strip()]
+    if not providers:
+        return None
+    return {
+        "provider": {
+            "only": providers,
+            "allow_fallbacks": False,
+        }
+    }
+
+
 ## MODEL MAP ##
 BEDROCK_MODELS_MAP = {
     # AWS Bedrock (all in us-west-2)
