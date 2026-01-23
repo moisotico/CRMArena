@@ -15,6 +15,7 @@ from crm_sandbox.agents.utils import (
     get_dynamic_max_tokens,
     estimate_input_tokens,
     get_openrouter_extra_body,
+    openrouter_completion,
 )
 import together
 import logging
@@ -208,7 +209,19 @@ class ChatAgent:
             for retry in range(max_retries):
                 try:
                     logger.info(f"DEBUG: LiteLLM attempt {retry + 1}/{max_retries}")
-                    res = completion(**completion_kwargs)
+                    if extra_body and self.provider == "openrouter":
+                        res = openrouter_completion(
+                            model=self.model,
+                            messages=self.messages,
+                            temperature=temperature,
+                            top_p=completion_kwargs.get("top_p"),
+                            max_tokens=max_tokens,
+                            tools=None,
+                            timeout=completion_kwargs.get("timeout"),
+                            extra_body=extra_body,
+                        )
+                    else:
+                        res = completion(**completion_kwargs)
                     logger.info(f"DEBUG: LiteLLM call succeeded on attempt {retry + 1}")
                     break
                 except Exception as e:

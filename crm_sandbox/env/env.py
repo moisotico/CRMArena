@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Type, Optional, Set, Union, Tuple
 from crm_sandbox.env.connect_sandbox import SalesforceConnector
 from crm_sandbox.env.users import LLMUserSimulationEnv
 from concurrent.futures import ThreadPoolExecutor
-from crm_sandbox.agents.utils import get_all_metrics, get_openrouter_extra_body
+from crm_sandbox.agents.utils import get_all_metrics, get_openrouter_extra_body, openrouter_completion
 import litellm
 import json
 import os
@@ -432,12 +432,23 @@ class Evaluator(object):
             print("AWS credentials configured for LiteLLM")
         
         extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider)
-        res = litellm.completion(
-            model=self.model,
-            custom_llm_provider=self.provider,
-            messages=messages,
-            extra_body=extra_body if extra_body else None,
-        )
+        if extra_body and self.provider == "openrouter":
+            res = openrouter_completion(
+                model=self.model,
+                messages=messages,
+                temperature=None,
+                top_p=None,
+                max_tokens=None,
+                tools=None,
+                extra_body=extra_body,
+            )
+        else:
+            res = litellm.completion(
+                model=self.model,
+                custom_llm_provider=self.provider,
+                messages=messages,
+                extra_body=extra_body if extra_body else None,
+            )
         extracted_answers = res.choices[0].message
         raw_content = extracted_answers.content.strip()
         try:
@@ -546,12 +557,23 @@ class Evaluator(object):
             {"role": "user", "content": model_output}
         ]
         extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider)
-        res = litellm.completion(
-            model=self.model,
-            custom_llm_provider=self.provider,
-            messages=messages,
-            extra_body=extra_body if extra_body else None,
-        )
+        if extra_body and self.provider == "openrouter":
+            res = openrouter_completion(
+                model=self.model,
+                messages=messages,
+                temperature=None,
+                top_p=None,
+                max_tokens=None,
+                tools=None,
+                extra_body=extra_body,
+            )
+        else:
+            res = litellm.completion(
+                model=self.model,
+                custom_llm_provider=self.provider,
+                messages=messages,
+                extra_body=extra_body if extra_body else None,
+            )
         
         if "yes" in res.choices[0].message.content.strip().lower() :
             return 1
