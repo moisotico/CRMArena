@@ -129,6 +129,11 @@ def openrouter_completion(
     try:
         with urllib.request.urlopen(req, timeout=timeout or 300) as resp:
             data = json.loads(resp.read())
+            if data.get("error"):
+                message = data.get("error", {}).get("message") or str(data)
+                raise RuntimeError(f"OpenRouter error: {message}")
+            if not data.get("choices"):
+                raise RuntimeError(f"OpenRouter returned no choices: {data}")
             return OpenRouterResponse(data)
     except urllib.error.HTTPError as err:
         body = err.read()
