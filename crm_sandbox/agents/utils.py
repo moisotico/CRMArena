@@ -344,6 +344,8 @@ def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
         "o3-mini-2025-01-31": (200000, 65536),
         "us.anthropic.claude-opus-4-20250514-v1:0": (200000, 4096),
         "claude-opus-4-20250514": (200000, 4096),
+        # OpenRouter models
+        "openrouter/nvidia/nemotron-3-nano-30b-a3b": (256, 256),
     }
 
     context_window, max_output = MODEL_LIMITS.get(model_name, (128000, 2000))
