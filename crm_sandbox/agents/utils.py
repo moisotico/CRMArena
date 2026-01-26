@@ -36,17 +36,28 @@ reasoning_models = [
 ]
 
 
-def get_openrouter_extra_body(model: str | None = None, provider: str | None = None) -> dict | None:
-    provider_only = os.getenv("OPENROUTER_PROVIDER_ONLY")
-    if not provider_only:
+def get_openrouter_extra_body(model: str | None = None, provider: str | None = None, openrouter_providers: list | None = None) -> dict | None:
+    """Get OpenRouter extra_body for provider pinning.
+
+    Args:
+        model: Model name
+        provider: Provider name (must be 'openrouter' or model must start with 'openrouter/')
+        openrouter_providers: List of providers to pin to (from config). Takes precedence over env var.
+    """
+    # Use config-specified providers first, fallback to env var
+    if openrouter_providers:
+        providers = openrouter_providers
+    else:
+        provider_only = os.getenv("OPENROUTER_PROVIDER_ONLY")
+        if not provider_only:
+            return None
+        providers = [p.strip() for p in provider_only.split(",") if p.strip()]
+
+    if not providers:
         return None
     if provider and provider != "openrouter" and (not model or not model.startswith("openrouter/")):
         return None
-    if not model or not model.endswith("nvidia/nemotron-3-nano-30b-a3b"):
-        return None
-    providers = [p.strip() for p in provider_only.split(",") if p.strip()]
-    if not providers:
-        return None
+
     return {
         "provider": {
             "only": providers,
@@ -459,8 +470,8 @@ def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
         "o3-mini-2025-01-31": (200000, 65536),
         "us.anthropic.claude-opus-4-20250514-v1:0": (200000, 4096),
         "claude-opus-4-20250514": (200000, 4096),
-        # OpenRouter models
-        "openrouter/nvidia/nemotron-3-nano-30b-a3b": (256000, 256000),
+        # OpenRouter models - max_output should be reasonable, not full context
+        "openrouter/nvidia/nemotron-3-nano-30b-a3b": (256000, 16384),
     }
 
     context_window, max_output = MODEL_LIMITS.get(model_name, (128000, 2000))
