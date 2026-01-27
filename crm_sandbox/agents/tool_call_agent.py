@@ -8,7 +8,17 @@ import re, traceback, ast, time
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from crm_sandbox.agents.prompts import SCHEMA_STRING, SYSTEM_METADATA, NATIVE_FC_PROMPT, CUSTOM_FC_PROMPT, FC_RULE_STRING, FC_FLEX_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, fc_prompt_builder
+from crm_sandbox.agents.utils import (
+    parse_wrapped_response,
+    BEDROCK_MODELS_MAP,
+    TOGETHER_MODELS_MAP,
+    VERTEX_MODELS_MAP,
+    ANTHROPIC_MODELS_MAP,
+    CUSTOM_SERVER_MODELS_MAP,
+    fc_prompt_builder,
+    get_openrouter_extra_body,
+    openrouter_completion,
+)
 
 
 from dotenv import load_dotenv
@@ -41,17 +51,30 @@ def chat_completion_request(
             ]
             max_tokens_value = 50000 if model in high_token_models else 3500
             
-            res = litellm.completion(
-                messages=messages,
-                model=model,
-                temperature=0.0,
-                top_p=1.0,
-                max_tokens=max_tokens_value,
-                tools=tools,
-                api_base=custom_config["base_url"],
-                api_key=custom_config["api_key"],
-                additional_drop_params=additional_drop_params
-            )
+            extra_body = get_openrouter_extra_body(model=model)
+            if extra_body and model.startswith("openrouter/"):
+                res = openrouter_completion(
+                    model=model,
+                    messages=messages,
+                    temperature=0.0,
+                    top_p=1.0,
+                    max_tokens=max_tokens_value,
+                    tools=tools,
+                    extra_body=extra_body,
+                )
+            else:
+                res = litellm.completion(
+                    messages=messages,
+                    model=model,
+                    temperature=0.0,
+                    top_p=1.0,
+                    max_tokens=max_tokens_value,
+                    tools=tools,
+                    api_base=custom_config["base_url"],
+                    api_key=custom_config["api_key"],
+                    additional_drop_params=additional_drop_params,
+                    extra_body=extra_body if extra_body else None,
+                )
             return res
     
     # If using Bedrock and bearer token, set env vars for litellm
@@ -79,15 +102,28 @@ def chat_completion_request(
     ]
     max_tokens_value = 50000 if model in high_token_models else 3500
     
-    res = litellm.completion(
-        messages=messages,
-        model=model,
-        temperature=0.0,
-        top_p=1.0,
-        max_tokens=max_tokens_value,
-        tools=tools if "llama" not in model else None, ## llama tool_calling through prompt
-        additional_drop_params=["temperature", "top_p"] if model in ["o1-mini", "o1-preview", "o1-2024-12-17"] else []
-    )
+    extra_body = get_openrouter_extra_body(model=model)
+    if extra_body and model.startswith("openrouter/"):
+        res = openrouter_completion(
+            model=model,
+            messages=messages,
+            temperature=0.0,
+            top_p=1.0,
+            max_tokens=max_tokens_value,
+            tools=tools if "llama" not in model else None,
+            extra_body=extra_body,
+        )
+    else:
+        res = litellm.completion(
+            messages=messages,
+            model=model,
+            temperature=0.0,
+            top_p=1.0,
+            max_tokens=max_tokens_value,
+            tools=tools if "llama" not in model else None, ## llama tool_calling through prompt
+            additional_drop_params=["temperature", "top_p"] if model in ["o1-mini", "o1-preview", "o1-2024-12-17"] else [],
+            extra_body=extra_body if extra_body else None,
+        )
     return res
     
 class ToolCallAgent:

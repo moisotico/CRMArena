@@ -3,10 +3,11 @@ from typing import Any, Callable, Dict, List, Type, Optional, Set, Union, Tuple
 from crm_sandbox.env.connect_sandbox import SalesforceConnector
 from crm_sandbox.env.users import LLMUserSimulationEnv
 from concurrent.futures import ThreadPoolExecutor
-from crm_sandbox.agents.utils import get_all_metrics
+from crm_sandbox.agents.utils import get_all_metrics, get_openrouter_extra_body, openrouter_completion
 import litellm
 import json
 import os
+import re
 
 class ChatEnv(object):
     def __init__(
@@ -430,16 +431,36 @@ class Evaluator(object):
             print("AWS_REGION_NAME:", region)
             print("AWS credentials configured for LiteLLM")
         
-        res = litellm.completion(
-            model=self.model, 
-            custom_llm_provider=self.provider, 
-            messages=messages
-        )
+        extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider)
+        if extra_body and self.provider == "openrouter":
+            res = openrouter_completion(
+                model=self.model,
+                messages=messages,
+                temperature=None,
+                top_p=None,
+                max_tokens=None,
+                tools=None,
+                extra_body=extra_body,
+            )
+        else:
+            res = litellm.completion(
+                model=self.model,
+                custom_llm_provider=self.provider,
+                messages=messages,
+                extra_body=extra_body if extra_body else None,
+            )
         extracted_answers = res.choices[0].message
+        raw_content = extracted_answers.content.strip()
         try:
-            parsed_answers = json.loads(extracted_answers.content)["extracted_answers"]
+            parsed = json.loads(raw_content)
+            if isinstance(parsed, dict) and "extracted_answers" in parsed:
+                parsed_answers = parsed["extracted_answers"]
+            elif isinstance(parsed, list):
+                parsed_answers = parsed
+            else:
+                raise ValueError("Unexpected JSON shape from extractor")
         except Exception as e:
-            # if cannot directly parse use some heuristic methods. 
+            # if cannot directly parse use some heuristic methods.
             print(f"Failed to parse JSON: {extracted_answers.content}. Error: {e}. Using heuristics.")
             parsed_answers = []
             try:
@@ -459,40 +480,43 @@ class Evaluator(object):
                         # If splitting resulted in an empty list but the original content wasn't empty
                         # (e.g., content was just whitespace or quotes), treat the original content as a single item
                         if not parsed_answers and list_content:
-                             cleaned_single_item = list_content.strip().strip('"').strip("'")
-                             if cleaned_single_item:
-                                 parsed_answers = [cleaned_single_item]
+                            cleaned_single_item = list_content.strip().strip('"').strip("'")
+                            if cleaned_single_item:
+                                parsed_answers = [cleaned_single_item]
 
                 # Heuristic 2: If no list structure found, check if the entire string is 'None' (case-insensitive)
                 elif extracted_answers.content.strip().lower() == 'none':
-                     parsed_answers = ["None"]
+                    parsed_answers = ["None"]
                 # Heuristic 3: Assume the entire content (cleaned) is the single answer
                 else:
-                     # Strip whitespace and surrounding quotes
-                     cleaned_content = extracted_answers.content.strip().strip('"').strip("'")
-                     # Check if the cleaned content is 'none' again after stripping quotes
-                     if cleaned_content.lower() == 'none':
-                         parsed_answers = ["None"]
-                     # Only add if the cleaned content is not empty
-                     elif cleaned_content:
-                         parsed_answers = [cleaned_content]
+                    # Strip whitespace and surrounding quotes
+                    cleaned_content = extracted_answers.content.strip().strip('"').strip("'")
+                    # Check if the cleaned content is 'none' again after stripping quotes
+                    if cleaned_content.lower() == 'none':
+                        parsed_answers = ["None"]
+                    # Only add if the cleaned content is not empty
+                    elif cleaned_content:
+                        parsed_answers = [cleaned_content]
 
-                # Final safety check: If heuristics resulted in an empty list, default to [None]
-                # This covers cases where the input was empty, just whitespace/quotes, or heuristics failed unexpectedly
+                # Final safety check: Only default to ["None"] if content is actually empty/none-ish
                 if not parsed_answers:
-                     print(f"Heuristics resulted in empty list for: {extracted_answers.content}. Defaulting to [None].")
-                     parsed_answers = ["None"]
+                    cleaned_raw = raw_content.strip().strip('"').strip("'")
+                    if not cleaned_raw or cleaned_raw.lower() == 'none':
+                        print(f"Heuristics resulted in empty list for: {extracted_answers.content}. Defaulting to [None].")
+                        parsed_answers = ["None"]
+                    else:
+                        parsed_answers = [cleaned_raw]
 
             except Exception as heuristic_e:
-                 # If any error occurs during the heuristic parsing itself
-                 print(f"Heuristic parsing failed with error: {heuristic_e}. Returning raw content or [None].")
-                 # Fallback: return the raw content in a list if it's not empty/whitespace, otherwise [None]
-                 raw_content = extracted_answers.content.strip()
-                 if raw_content and raw_content.lower() != 'none':
-                     parsed_answers = [raw_content]
-                 else:
-                     # Default to None if raw content is empty or 'none'
-                     parsed_answers = ["None"]
+                # If any error occurs during the heuristic parsing itself
+                print(f"Heuristic parsing failed with error: {heuristic_e}. Returning raw content or [None].")
+                # Fallback: return the raw content in a list if it's not empty/whitespace, otherwise [None]
+                cleaned_raw = raw_content.strip().strip('"').strip("'")
+                if cleaned_raw and cleaned_raw.lower() != 'none':
+                    parsed_answers = [cleaned_raw]
+                else:
+                    # Default to None if raw content is empty or 'none'
+                    parsed_answers = ["None"]
                      
         # Convert None to "None"
         if parsed_answers[0] == None:
@@ -532,9 +556,24 @@ class Evaluator(object):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": model_output}
         ]
-        res = litellm.completion(
-            model=self.model, custom_llm_provider=self.provider, messages=messages
-        )
+        extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider)
+        if extra_body and self.provider == "openrouter":
+            res = openrouter_completion(
+                model=self.model,
+                messages=messages,
+                temperature=None,
+                top_p=None,
+                max_tokens=None,
+                tools=None,
+                extra_body=extra_body,
+            )
+        else:
+            res = litellm.completion(
+                model=self.model,
+                custom_llm_provider=self.provider,
+                messages=messages,
+                extra_body=extra_body if extra_body else None,
+            )
         
         if "yes" in res.choices[0].message.content.strip().lower() :
             return 1

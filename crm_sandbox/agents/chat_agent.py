@@ -5,7 +5,18 @@ litellm.set_verbose = False
 from typing import Dict, List
 import time, traceback
 from crm_sandbox.agents.prompts import SCHEMA_STRING, REACT_RULE_STRING, ACT_RULE_STRING, SYSTEM_METADATA, REACT_EXTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_INTERACTIVE_PROMPT, REACT_INTERNAL_PROMPT, REACT_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_PROMPT, REACT_PRIVACY_AWARE_EXTERNAL_INTERACTIVE_PROMPT, ACT_PROMPT
-from crm_sandbox.agents.utils import parse_wrapped_response, BEDROCK_MODELS_MAP, TOGETHER_MODELS_MAP, VERTEX_MODELS_MAP, ANTHROPIC_MODELS_MAP, CUSTOM_SERVER_MODELS_MAP, get_dynamic_max_tokens, estimate_input_tokens
+from crm_sandbox.agents.utils import (
+    parse_wrapped_response,
+    BEDROCK_MODELS_MAP,
+    TOGETHER_MODELS_MAP,
+    VERTEX_MODELS_MAP,
+    ANTHROPIC_MODELS_MAP,
+    CUSTOM_SERVER_MODELS_MAP,
+    get_dynamic_max_tokens,
+    estimate_input_tokens,
+    get_openrouter_extra_body,
+    openrouter_completion,
+)
 import together
 import logging
 
@@ -17,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 class ChatAgent:
     def __init__(
-        self, schema_obj, model: str = "gpt-4o", max_turns: int = 20, eval_mode="default", strategy="react", provider="bedrock", interactive=False, agent_type="internal", privacy_aware_prompt=False
+        self, schema_obj, model: str = "gpt-4o", max_turns: int = 20, eval_mode="default", strategy="react", provider="bedrock", interactive=False, agent_type="internal", privacy_aware_prompt=False, openrouter_providers=None
     ):
         schema = self._build_schema(schema_obj)
         assert strategy in ["react", "act"], "Only react and act strategies supported for now"
@@ -55,7 +66,8 @@ class ChatAgent:
         self.info = {}
         self.usage = {"cost": [], "completion_tokens": [], "prompt_tokens": [], "total_tokens": []}
         self.provider = provider
-       
+        self.openrouter_providers = openrouter_providers or []
+
         if provider == "bedrock" and self.model in BEDROCK_MODELS_MAP:
             os.environ["AWS_REGION_NAME"] = BEDROCK_MODELS_MAP[self.model]["region"]
             self.model = BEDROCK_MODELS_MAP[self.model]["name"]
@@ -131,16 +143,6 @@ class ChatAgent:
         current_agent_turn = 0
         # for turn_id in range(self.max_turns):
         while current_agent_turn < self.max_turns:
-            # sleep for rate limiting
-            if self.provider == "openai":
-                # Add delay for OpenAI to avoid rate limits
-                time.sleep(2)
-            elif self.provider == "anthropic":
-                # Add delay for Anthropic to avoid rate limits
-                time.sleep(2)
-            else:
-                # Default delay for other providers
-                time.sleep(5)
             info = {}
             current_agent_turn += 1
             logger.info(f"Agent turn {current_agent_turn} started")
@@ -181,6 +183,9 @@ class ChatAgent:
                 "thinking": thinking,
                 "additional_drop_params": ["temperature"] if self.original_model_name in ["o1-mini", "o1-preview", "o1-2024-12-17", "deepseek-r1", "o3-mini-2025-01-31"] else []
             }
+            extra_body = get_openrouter_extra_body(model=self.model, provider=self.provider, openrouter_providers=self.openrouter_providers)
+            if extra_body:
+                completion_kwargs["extra_body"] = extra_body
             
             # Add custom server parameters only if needed
             if self.provider in ["custom_server", "litellm_server"] and hasattr(self, 'custom_server_config'):
@@ -195,7 +200,22 @@ class ChatAgent:
             for retry in range(max_retries):
                 try:
                     logger.info(f"DEBUG: LiteLLM attempt {retry + 1}/{max_retries}")
-                    res = completion(**completion_kwargs)
+                    logger.info(f"DEBUG: extra_body={extra_body}, self.provider={self.provider}")
+                    logger.info(f"DEBUG: condition (extra_body and self.provider == 'openrouter') = {bool(extra_body and self.provider == 'openrouter')}")
+                    if extra_body and self.provider == "openrouter":
+                        logger.info(f"DEBUG: USING openrouter_completion() with extra_body={extra_body}")
+                        res = openrouter_completion(
+                            model=self.model,
+                            messages=self.messages,
+                            temperature=temperature,
+                            top_p=completion_kwargs.get("top_p"),
+                            max_tokens=max_tokens,
+                            tools=None,
+                            timeout=completion_kwargs.get("timeout"),
+                            extra_body=extra_body,
+                        )
+                    else:
+                        res = completion(**completion_kwargs)
                     logger.info(f"DEBUG: LiteLLM call succeeded on attempt {retry + 1}")
                     break
                 except Exception as e:

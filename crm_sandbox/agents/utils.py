@@ -13,6 +13,12 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# OpenRouter provider pinning support (used for large-context Nemotron runs)
+OPENROUTER_PINNED_MODELS = {
+    "openrouter/nvidia/nemotron-3-nano-30b-a3b",
+    "nvidia/nemotron-3-nano-30b-a3b",
+}
+
 # Models known to have issues with max_tokens in LiteLLM, requiring special handling
 problematic_models = [
     "gpt-oss-120b",
@@ -28,6 +34,126 @@ reasoning_models = [
     "deepseek-r1",
     "o3-mini-2025-01-31",
 ]
+
+
+def get_openrouter_extra_body(model: str | None = None, provider: str | None = None, openrouter_providers: list | None = None) -> dict | None:
+    """Get OpenRouter extra_body for provider pinning.
+
+    Args:
+        model: Model name
+        provider: Provider name (must be 'openrouter' or model must start with 'openrouter/')
+        openrouter_providers: List of providers to pin to (from config). Takes precedence over env var.
+    """
+    # Use config-specified providers first, fallback to env var
+    if openrouter_providers:
+        providers = openrouter_providers
+    else:
+        provider_only = os.getenv("OPENROUTER_PROVIDER_ONLY")
+        if not provider_only:
+            return None
+        providers = [p.strip() for p in provider_only.split(",") if p.strip()]
+
+    if not providers:
+        return None
+    if provider and provider != "openrouter" and (not model or not model.startswith("openrouter/")):
+        return None
+
+    return {
+        "provider": {
+            "only": providers,
+            "allow_fallbacks": False,
+        }
+    }
+
+
+class _OpenRouterMessage:
+    def __init__(self, data: dict) -> None:
+        self._data = data
+        self.role = data.get("role")
+        self.content = data.get("content")
+        self.tool_calls = data.get("tool_calls")
+
+    def model_dump(self) -> dict:
+        return self._data
+
+
+class _OpenRouterChoice:
+    def __init__(self, data: dict) -> None:
+        self.message = _OpenRouterMessage(data.get("message", {}))
+        self.finish_reason = data.get("finish_reason")
+
+
+class OpenRouterResponse:
+    def __init__(self, data: dict) -> None:
+        choices = data.get("choices", []) or []
+        self.choices = [_OpenRouterChoice(choice) for choice in choices]
+        self.usage = data.get("usage", {}) or {}
+        self.provider = data.get("provider")
+        self._hidden_params = {"response_cost": self.usage.get("cost", 0.0)}
+
+
+def openrouter_completion(
+    *,
+    model: str,
+    messages: list,
+    temperature: float | None = None,
+    top_p: float | None = None,
+    max_tokens: int | None = None,
+    tools: list | None = None,
+    timeout: int | float | None = None,
+    extra_body: dict | None = None,
+) -> OpenRouterResponse:
+    """Direct OpenRouter call (bypasses LiteLLM) to ensure provider pinning."""
+    import json
+    import urllib.request
+    import urllib.error
+
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OR_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENROUTER_API_KEY is not set")
+
+    model_name = model.replace("openrouter/", "") if model.startswith("openrouter/") else model
+    payload = {
+        "model": model_name,
+        "messages": messages,
+        "usage": {"include": True},
+    }
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if top_p is not None:
+        payload["top_p"] = top_p
+    if max_tokens is not None:
+        payload["max_tokens"] = max_tokens
+    if tools is not None:
+        payload["tools"] = tools
+    if extra_body:
+        payload.update(extra_body)
+
+    req = urllib.request.Request(
+        "https://openrouter.ai/api/v1/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+    )
+    req.add_header("Authorization", f"Bearer {api_key}")
+    req.add_header("Content-Type", "application/json")
+
+    try:
+        with urllib.request.urlopen(req, timeout=timeout or 300) as resp:
+            data = json.loads(resp.read())
+            if data.get("error"):
+                message = data.get("error", {}).get("message") or str(data)
+                raise RuntimeError(f"OpenRouter error: {message}")
+            if not data.get("choices"):
+                raise RuntimeError(f"OpenRouter returned no choices: {data}")
+            return OpenRouterResponse(data)
+    except urllib.error.HTTPError as err:
+        body = err.read()
+        try:
+            data = json.loads(body)
+            message = data.get("error", {}).get("message") or str(data)
+        except Exception:
+            message = body.decode("utf-8", errors="ignore")
+        raise RuntimeError(f"OpenRouter error: {message}") from err
 
 
 ## MODEL MAP ##
@@ -344,6 +470,8 @@ def get_safe_max_tokens(model_name: str, input_tokens: int = 0) -> int:
         "o3-mini-2025-01-31": (200000, 65536),
         "us.anthropic.claude-opus-4-20250514-v1:0": (200000, 4096),
         "claude-opus-4-20250514": (200000, 4096),
+        # OpenRouter models - max_output should be reasonable, not full context
+        "openrouter/nvidia/nemotron-3-nano-30b-a3b": (256000, 16384),
     }
 
     context_window, max_output = MODEL_LIMITS.get(model_name, (128000, 2000))
